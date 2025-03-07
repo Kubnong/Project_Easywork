@@ -1,13 +1,13 @@
-import { createStackNavigator } from "@react-navigation/stack"
+import { createStackNavigator } from "@react-navigation/stack";
 import { NavigationContainer } from "@react-navigation/native";
-import React from "react"
-import StartScreen from "./src/screens/StartScreen"
+
+import React from "react";
 import HomeScreen from "./src/screens/HomeScreen";
 import Profile from "./src/screens/Profile";
 import AddDetail from "./src/screens/AddDetail";
 
-const Stack = createStackNavigator()
-const App = () =>{
+const Stack = createStackNavigator();
+const App = () => {
   return (
     <NavigationContainer>
       <Stack.Navigator initialRouteName="AddDetail" screenOptions={{
@@ -22,7 +22,7 @@ const App = () =>{
         <Stack.Screen name="AddDetail" component={AddDetail} />
       </Stack.Navigator>
     </NavigationContainer>
-  )
-}
+  );
+};
 
-export default App
+export default App;
