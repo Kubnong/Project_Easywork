@@ -14,11 +14,17 @@ const CustomButton = ({ title, onPress, backgroundColor ,  color , borderColor ,
           {icon}
         </View>
       )}
+      {icon && iconPosition === "left" && (
+        <View style={styles.iconWrapper}>{icon}</View>
+      )}
       <Text style={[styles.text, { color }]}>{title}</Text>
       {icon && iconPosition === 'bottom' && (
         <View style={styles.iconWrapper}>
           {icon}
         </View>
+      )}
+        {icon && iconPosition === "right" && (
+        <View style={styles.iconWrapper}>{icon}</View>
       )}
     </TouchableOpacity>
   );
@@ -39,6 +45,9 @@ const styles = StyleSheet.create({
     fontWeight:"bold",
     fontSize: 15,
     textAlign: "center"
+  },
+  iconWrapper: {
+    marginLeft: 20, // เว้นระยะห่างไอคอนจากข้อความ
   },
 });
 
