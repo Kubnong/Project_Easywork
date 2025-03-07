@@ -1,12 +1,26 @@
-import React from "react";
+import React, { Component } from "react";
 import {View, StyleSheet, TextInput, Text, FlatList, TouchableOpacity} from "react-native";
 import FunctionBar from "../components/FunctionBar";
 
 const Profile = () => {
     return(
         <View style={styles.container}>
-            <View>
-                
+            <View style={styles.headcontaienr}>
+                <Ionicons name="person" size={50} color="black" />
+                <Text style={styles.title}>ชื่อ Username</Text>
+            </View>
+            <View style={styles.optioncontainer}>
+                <TouchableOpacity style={styles.option}>
+                    <FontAwesome5 name="credit-card" size={35} color="grey"/>
+                    <Text style={styles.font}>สมัครเป็นฟรีแลนซ์</Text>
+                </TouchableOpacity>
+                <TouchableOpacity style={styles.option}>
+                    <Ionicons name="person" size={35} color="grey" />
+                    <View>
+                        <Text style={[styles.font,{marginLeft:15}]}>ข้อมูลบัญชี</Text>
+                        <Text style={{marginLeft:15}}>รายละเอียดบัญชี, ข้อมูลติดต่อ, รหัสผ่าน</Text>
+                    </View>
+                </TouchableOpacity>
             </View>
             <FunctionBar/>
         </View>
@@ -17,38 +31,33 @@ const styles = StyleSheet.create({
         flex: 1,
         backgroundColor:'white'
     },
+    headcontaienr: {
+        height:80,
+        flexDirection: 'row',
+        backgroundColor: '#77D499',
+        padding:10,
+        alignItems:'center'
+    },
+    optioncontainer:{
+    },
+    option:{
+        flexDirection:'row',
+        borderColor:'grey',
+        borderWidth:1,
+        padding: 10,
+        
+    },
     title:{
         fontSize: 20,
         fontWeight: 'bold',
-        color: '#77D499',
-    },
-    searchContainer: {
-        alignItems:'center',
-        flexDirection: 'row',
-        backgroundColor: 'white',
-        borderColor:'#77D499',
-        borderWidth: 3,
-        borderRadius: 20,
-        paddingHorizontal: 10,
-        margin: 10,
+        color: 'black',
     },
     font: {
+        marginLeft:10,
         fontSize: 14,
         fontWeight: 'bold',
-        color: 'white',
+        color: 'black',
     },
-    categoryItem: {
-        alignItems:'center',
-        justifyContent:'center',
-        backgroundColor: 'white',
-        borderColor:'#77D499',
-        padding: 10,
-        marginHorizontal: 5,
-        borderWidth:3,
-        borderRadius: 5,
-        marginTop:5,
-        width:160,
-        height:60
-    },
+    
 })
 export default Profile;
