@@ -1,6 +1,6 @@
 import React from "react";
 import {View, StyleSheet, TextInput, Text, FlatList, TouchableOpacity} from "react-native";
-import FunctionBar from "../components/functionbar";
+import FunctionBar from "../components/FunctionBar";
 
 const Profile = () => {
     return(
