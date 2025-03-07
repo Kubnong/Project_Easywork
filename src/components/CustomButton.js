@@ -1,29 +1,39 @@
 import React from "react";
-import { Text, StyleSheet, TouchableOpacity } from "react-native";
+import { Text, StyleSheet, TouchableOpacity , View} from "react-native";
 
-const CustomButton = ({ title, onPress, backgroundColor ,  color , borderColor , width , height , borderRadius }) => {
+const CustomButton = ({ title, onPress, backgroundColor ,  color , borderColor , width , height , borderRadius , icon , iconPosition}) => {
 
   return (
     
     <TouchableOpacity
-      style={[styles.Button, { backgroundColor , borderColor: borderColor || "white" , width:width || 331 , height , borderRadius: borderRadius || 20}]}
+      style={[styles.Button, { backgroundColor:backgroundColor || "gold" , borderColor: borderColor || "white" , width:width || 331 , height:height || 45 , borderRadius: borderRadius || 20}]}
       onPress={onPress}
     >
+      {icon && iconPosition === 'top' && (
+        <View style={styles.iconWrapper}>
+          {icon}
+        </View>
+      )}
       <Text style={[styles.text, { color }]}>{title}</Text>
+      {icon && iconPosition === 'bottom' && (
+        <View style={styles.iconWrapper}>
+          {icon}
+        </View>
+      )}
     </TouchableOpacity>
   );
 };
 
 const styles = StyleSheet.create({
   Button: {
-    backgroundColor: "gold",
     padding: 10,
     alignContent: "center",
     justifyContent:"center",
-    height: 45,
     margin: 5,
     borderWidth:1,
     marginHorizontal: 10,
+    alignItems: "center",
+    flexDirection: 'row',  // ให้ปุ่มใช้ flexDirection: row
   },
   text: {
     fontWeight:"bold",
