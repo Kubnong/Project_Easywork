@@ -1,6 +1,9 @@
 import { createStackNavigator } from "@react-navigation/stack";
 import { NavigationContainer } from "@react-navigation/native";
+
 import React from "react";
+import HomeScreen from "./src/screens/HomeScreen";
+import Profile from "./src/screens/Profile";
 import StartScreen from "./src/screens/StartScreen";
 import Register from "./src/screens/Register";
 import Login from "./src/screens/Login";
@@ -44,6 +47,8 @@ const App = () => {
           component={RegisFreelance}
           options={{ title: "สมัครฟรีแลนซ์" }}
         />
+        <Stack.Screen name="HomeScreen" component={HomeScreen}/>
+        <Stack.Screen name="Profile" component={Profile}/>
       </Stack.Navigator>
     </NavigationContainer>
   );
