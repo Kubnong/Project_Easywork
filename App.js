@@ -9,6 +9,7 @@ import StartScreen from "./src/screens/StartScreen";
 import Register from "./src/screens/Register";
 import Login from "./src/screens/Login";
 import RegisFreelance from "./src/screens/RegisFreelance";
+import Verify from "./src/screens/Verify";
 import LinearGradient from "react-native-linear-gradient";
 
 const Stack = createStackNavigator();
@@ -59,6 +60,7 @@ const App = () => {
           options={{ headerLeft: () => null }}
         />
         <Stack.Screen name="AddDetail" component={AddDetail} />
+        <Stack.Screen name="VerifyScreen" component={Verify} />
       </Stack.Navigator>
     </NavigationContainer>
   );

@@ -54,6 +54,7 @@ const RegisFreelance = ({ navigation }) => {
         borderColor="#77D499"
         icon={<AntDesign name="arrowright" size={24} color="white" />}
         iconPosition="right"
+        onPress={() => navigation.navigate("VerifyScreen")}
       />
     </View>
   );

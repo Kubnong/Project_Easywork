@@ -40,6 +40,7 @@ const styles = StyleSheet.create({
     marginHorizontal: 10,
     alignItems: "center",
     flexDirection: 'row',  // ให้ปุ่มใช้ flexDirection: row
+    alignSelf:"center"  // ให้ตัวเองอยู่กึ่งกลาง
   },
   text: {
     fontWeight:"bold",
