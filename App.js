@@ -10,6 +10,7 @@ import Register from "./src/screens/Register";
 import Login from "./src/screens/Login";
 import RegisFreelance from "./src/screens/RegisFreelance";
 import Verify from "./src/screens/Verify";
+import DetailScreen from "./src/screens/DetailScreen";
 import LinearGradient from "react-native-linear-gradient";
 
 const Stack = createStackNavigator();
@@ -17,7 +18,7 @@ const App = () => {
   return (
     <NavigationContainer>
       <Stack.Navigator
-        initialRouteName="RegisFreelanceScreen"
+        initialRouteName="AddDetail"
         screenOptions={{
           headerStyle: { backgroundColor: "#77D499" },
           headerTintColor: "#fff",
@@ -61,6 +62,7 @@ const App = () => {
         />
         <Stack.Screen name="AddDetail" component={AddDetail} />
         <Stack.Screen name="VerifyScreen" component={Verify} />
+        <Stack.Screen name="DetailScreen" component={DetailScreen} />
       </Stack.Navigator>
     </NavigationContainer>
   );
