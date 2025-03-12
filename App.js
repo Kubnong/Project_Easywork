@@ -18,7 +18,7 @@ const App = () => {
   return (
     <NavigationContainer>
       <Stack.Navigator
-        initialRouteName="AddDetail"
+        initialRouteName="RegisFreelanceScreen"
         screenOptions={{
           headerStyle: { backgroundColor: "#77D499" },
           headerTintColor: "#fff",
@@ -61,7 +61,7 @@ const App = () => {
           options={{ headerLeft: () => null }}
         />
         <Stack.Screen name="AddDetail" component={AddDetail} />
-        <Stack.Screen name="VerifyScreen" component={Verify} />
+        <Stack.Screen name="VerifyScreen" component={Verify} options={{ title: "ยืนยันตัวตน" }}/>
         <Stack.Screen name="DetailScreen" component={DetailScreen} />
       </Stack.Navigator>
     </NavigationContainer>
