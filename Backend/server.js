@@ -53,11 +53,14 @@ db.run(`CREATE TABLE IF NOT EXISTS Verify(
 )`);
 
 db.run(`CREATE TABLE IF NOT EXISTS Freelance(
-    id_freelance INTEGER PRIMARY KEY AUTOINCREMENT,
-    id_verify INTEGER,
-    register_date DATE,
-    FOREIGN KEY (id_verify) REFERENCES Verify(id_verify) ON DELETE CASCADE
+  id_freelance INTEGER PRIMARY KEY AUTOINCREMENT,
+  id_verify INTEGER,
+  register_date DATE,
+  FOREIGN KEY (id_verify) REFERENCES Verify(id_verify) ON DELETE CASCADE
 )`);
+
+db.run(`ALTER TABLE Freelance ADD COLUMN freelance_detail TEXT`)
+
 
 db.run(`CREATE TABLE IF NOT EXISTS Category(
     id_category INTEGER PRIMARY KEY AUTOINCREMENT,
