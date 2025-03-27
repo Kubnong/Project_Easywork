@@ -1,6 +1,28 @@
 import axios from "axios";
 
-const API_URL = "http://172.20.10.7:5000";
+const API_URL = "http://192.168.1.115:5000";
+
+export const categories = async () => {
+  try {
+    const response = await axios.get(`${API_URL}/categories`); // เรียก API
+    return response.data; // ส่งข้อมูลกลับไป
+  } catch (error) {
+    console.error("Error fetching categories:", error);
+    throw error; // ส่ง error ไปให้ frontend จัดการ
+  }
+};
+
+export const selectType = async (selectedcategory) => {
+  try{
+    const response = await axios.post(`${API_URL}/select`,{
+      selectedcategory,
+    });
+    return response.data;
+  }
+  catch (error){
+    throw new Error(error.response?.data?.message || "Error select")
+  }  
+};
 
 export const registerUser = async (
   username,
@@ -67,7 +89,7 @@ export const uploadImages = async (selfieUri, idCardUri, token) => {
     });
 
     // 🔥 ส่งรูปภาพไปที่ API พร้อม JWT token
-    const response = await axios.post("http://172.20.10.7:5000/upload", formData, {
+    const response = await axios.post("http://192.168.1.115:5000/upload", formData, {
       headers: {
         "Content-Type": "multipart/form-data",
         "Authorization": `Bearer ${token}`,  // ส่ง JWT token ไปใน Header

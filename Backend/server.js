@@ -266,5 +266,77 @@ app.post("/upload", authenticateJWT, upload.fields([{ name: "selfie" }, { name: 
   );
 });
 
+/*
+// ลบข้อมูลทั้งหมดจากตาราง Category
+db.run(`DELETE FROM Category`, function (err) {
+    if (err) {
+      console.error("Error deleting data from Category:", err);
+      return;
+    }
+    console.log("All data deleted from Category");
+  
+    // รีเซ็ตค่า AUTOINCREMENT ให้กลับไปที่ 1
+    db.run(`DELETE FROM sqlite_sequence WHERE name = 'Category'`, function (err) {
+      if (err) {
+        console.error("Error resetting AUTOINCREMENT:", err);
+        return;
+      }
+      console.log("AUTOINCREMENT value reset to 1");
+  
+      // เพิ่มข้อมูลใหม่หลังจากรีเซ็ต
+  
+      categories.forEach(category => {
+        db.run(`INSERT INTO Category (name_category) VALUES (?)`, [category], function (err) {
+          if (err) {
+            console.error("Error inserting category:", err);
+            return;
+          }
+          console.log(`Category '${category}' added successfully`);
+        });
+      });
+  
+      // ส่งข้อความยืนยันหลังจากเพิ่มข้อมูลทั้งหมด
+      console.log("Categories added successfully");
+    });
+  });
+*/
+app.get('/categories', (req, res) => {
+  db.all(`SELECT name_category FROM Category`, (err, rows) => {
+      if (err) {
+          res.status(500).json({ error: err.message });
+          return;
+      }
+      res.json(rows);
+  });
+});
+
+app.post("/select", (req, res) => {
+  const selectedcategory = req.body.selectedcategory;
+  console.log("Selected Category:", selectedcategory);
+
+  db.all(
+    `SELECT TypeWork.name_typework
+    FROM TypeWork
+    JOIN Category ON TypeWork.id_category = Category.id_category
+    WHERE Category.name_category = ?;`, [selectedcategory],
+    (err, rows) => {
+      if (err) {
+        return res.status(500).send({ message: "Database error", error: err });
+      }
+      if (!rows || rows.length === 0) {
+        return res.status(400).send({ message: "No typework found for the selected category" });
+      }
+
+      // แปลงข้อมูลให้อยู่ในรูปแบบที่เหมาะสม
+      const formattedData = rows.map((item) => ({
+        label: item.name_typework,
+        value: item.name_typework,
+      }));
+
+      console.log("Formatted Data:", formattedData);
+      res.send(formattedData);
+    }
+  );
+});
 
 app.listen(5000, () => console.log("Server running on port 5000"));
