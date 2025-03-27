@@ -34,7 +34,7 @@ const Profile = ({ navigation, setUserToken, userId }) => {
 
       try {
         const response = await axios.get(
-          `http://192.168.1.115:5000/profile/${userId}`
+          `http://172.20.10.7:5000/profile/${userId}`
         );
         setUser(response.data); // เก็บข้อมูลผู้ใช้ที่ดึงมา
       } catch (error) {
