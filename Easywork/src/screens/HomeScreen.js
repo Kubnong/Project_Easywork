@@ -3,6 +3,9 @@ import {View, StyleSheet, TextInput, Text, FlatList, TouchableOpacity, Image} fr
 import Feather from "@expo/vector-icons/Feather";
 import FunctionBar from "../components/FunctionBar.js";
 
+
+
+
 const categories = [
     { id: '1', name: 'แนะนำ'},
     { id: '2', name: 'ออกแบบกราฟิก'},
@@ -18,6 +21,7 @@ const worktype = [
     { id: '5', name: 'แปลภาษา', category:'เขียนและแปลภาษา', pic:'https://play-lh.googleusercontent.com/C1y3UJXvJ36YgI1DiFbOm92YPJRQBgFjAeaBb5HNR5OCk_6rOHKnCOiUBCdDmCT1WpH-'},
 ]
 const HomeScreen = () => {
+    
     return(
         <View style={styles.container}>
             <Text style={styles.title}>ค้นหาฟรีแลนซ์ที่คุณสนใจ</Text>
@@ -29,6 +33,7 @@ const HomeScreen = () => {
                 />
             </View>
             <Text>หมวดหมู่ทั้งหมด</Text>
+           
             <View>
                 <FlatList
                     data={categories}
@@ -60,6 +65,7 @@ const HomeScreen = () => {
                 />
             </View>
             <FunctionBar/>
+            
         </View>
     )
 }

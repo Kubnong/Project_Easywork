@@ -2,9 +2,9 @@ import React from "react";
 import { View , Text , StyleSheet ,TextInput } from "react-native";
 
 
-const InputBox = ({placeholder , value , onChangeText , secure , borderColor , width , height , multiline , marginBottom}) => {
+const InputBox = ({placeholder , value , onChangeText , secure , borderColor , width , height , multiline , marginBottom , editable , pointerEvents}) => {
     return (
-        <View style={[styles.Container , {borderColor: borderColor || "#77D499" , width:width || 331 , height:height || 58 , marginBottom:marginBottom || 10}]}>
+        <View style={[styles.Container , {borderColor: borderColor || "#77D499" , width:width || 331 , height:height || 58 , marginBottom:marginBottom || 10 , editable: editable || "true" , pointerEvents: pointerEvents || "auto"}]}>
             <TextInput 
             style={styles.Input}
             placeholder={placeholder}

@@ -3,13 +3,67 @@ import { View, Text, StyleSheet, Image } from "react-native";
 import CustomButton from "../components/CustomButton";
 import Feather from "@expo/vector-icons/Feather";
 import CustomModal from "../components/CustomModal";
+import * as ImagePicker from 'expo-image-picker';
 
 const Verify = ({ navigation }) => {
   const [modalVisible, setModalVisible] = useState(false);
+  const [imageUri, setImageUri] = useState(null); // เก็บ URL ของรูปที่อัปโหลด
+  
 
   const handleClose = () => {
     setModalVisible(false);
   };
+
+  
+
+  const handleUploadImage = async () => {
+    // ขออนุญาติเข้าถึงรูปภาพในแกลอรี่
+    const { status } = await ImagePicker.requestMediaLibraryPermissionsAsync();
+
+    if (status !== "granted") {
+      Alert.alert("การเข้าถึงถูกปฏิเสธ", "โปรดให้สิทธิ์ในการเข้าถึงแกลอรี่");
+      return;
+    }
+
+    // เปิดการเลือกรูปภาพจากแกลเลอรี
+    const result = await ImagePicker.launchImageLibraryAsync({
+      mediaTypes: ImagePicker.MediaTypeOptions.Images,
+      quality: 1,
+    });
+
+    if (!result.cancelled) {
+      const file = result.uri; // ได้ URI ของรูปที่เลือก
+      const formData = new FormData();
+      formData.append("file", {
+        uri: file,
+        name: "image.jpg", // หรือเปลี่ยนชื่อไฟล์ตามต้องการ
+        type: "image/jpeg", // หรือเปลี่ยนเป็น type ที่ตรงกับไฟล์ที่อัปโหลด
+      });
+
+      try {
+        const response = await fetch("http://172.20.10.7:5000/upload", {
+          method: "POST",
+          body: formData,
+          headers: {
+            "Content-Type": "multipart/form-data",
+          },
+        });
+
+        const data = await response.json();
+        if (response.ok) {
+          setImageUri(data.imageUrl); // ใช้ URL ที่ได้จาก server
+          Alert.alert("อัปโหลดสำเร็จ!", "ไฟล์ของคุณถูกอัปโหลดแล้ว");
+        } else {
+          throw new Error(data.error || "Upload failed");
+        }
+      } catch (error) {
+        console.error("Upload Error:", error);
+        Alert.alert("เกิดข้อผิดพลาด", "อัปโหลดไม่สำเร็จ กรุณาลองใหม่อีกครั้ง");
+      }
+    }
+  };
+
+  
 
   return (
     <View style={styles.container}>
@@ -21,7 +75,7 @@ const Verify = ({ navigation }) => {
           เห็นรายละเอียดชัดเจนและเจ้าของบัตรถือบัตรประชาชนของตนเองเท่านั้น
         </Text>
         <Image
-          source={require("../../assets/girl-smile.jpg")}
+          source={imageUri ? { uri: imageUri } : require("../../assets/girl-smile.jpg")}
           style={{
             width: 259,
             height: 127,
@@ -31,6 +85,7 @@ const Verify = ({ navigation }) => {
             marginBottom: 5,
           }}
         />
+        
         <CustomButton
           title="อัปโหลดรูปภาพ"
           color="#299335"
@@ -39,7 +94,7 @@ const Verify = ({ navigation }) => {
           width={259}
           icon={<Feather name="upload-cloud" size={24} color="#299335" />}
           iconPosition="right"
-          onPress={() => navigation.navigate("VerifyScreen")}
+          onPress={handleUploadImage}
         />
       </View>
 
@@ -47,7 +102,7 @@ const Verify = ({ navigation }) => {
         <Text style={styles.Text}>รูปเห็นบัตรประชาชน</Text>
         <Text style={styles.Text2}>เห็นรายละเอียดครบถ้วนชัดเจน</Text>
         <Image
-          source={require("../../assets/idcard.png")}
+          source={imageUri ? { uri: imageUri } : require("../../assets/idcard.png")}
           style={{
             width: 259,
             height: 150,
@@ -66,7 +121,7 @@ const Verify = ({ navigation }) => {
             width={259}
             icon={<Feather name="upload-cloud" size={24} color="#299335" />}
             iconPosition="right"
-            onPress={() => navigation.navigate("VerifyScreen")}
+            onPress={handleUploadImage}
           />
         </View>
       </View>

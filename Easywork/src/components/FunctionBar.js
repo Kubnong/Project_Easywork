@@ -1,6 +1,6 @@
 import React from "react";
 import {View, StyleSheet, Text, TouchableOpacity} from "react-native";
-import { useNavigation } from "@react-navigation/native"
+import { useNavigation , useRoute} from "@react-navigation/native"
 import Feather from "@expo/vector-icons/Feather";
 import Ionicons from '@expo/vector-icons/Ionicons';
 import Entypo from '@expo/vector-icons/Entypo';
@@ -8,6 +8,7 @@ import Entypo from '@expo/vector-icons/Entypo';
 // อยู่หน้าไหนให้สีของหน้านั้นเปลี่ยนสี
 const FunctionBar = () => {
     const navigation = useNavigation();
+    
     return(
         <View style={styles.functionContainer}>
             <TouchableOpacity 

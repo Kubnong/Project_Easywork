@@ -5,17 +5,23 @@ import InputBox from "../components/InputBox";
 import Foundation from "@expo/vector-icons/Foundation";
 import AntDesign from "@expo/vector-icons/AntDesign";
 
-const RegisFreelance = ({ navigation }) => {
+
+const RegisFreelance = ({ navigation , route}) => {
+  const { user } = route.params; // รับข้อมูล user ที่ส่งมาจากหน้า Profile
+
   return (
     <View style={styles.container}>
       <Text style={styles.Title}>Freelance</Text>
 
       <Text style={[styles.Title2, { marginRight: 250 }]}>Username</Text>
       <InputBox
-        placeholder="Username"
+        placeholder={user.username}
         borderColor="#D5D5D5"
+        editable="false"  // ปิดไม่ให้สามารถแก้ไขค่าได้
+        pointerEvents="none"  // ปิดไม่ให้สามารถโต้ตอบกับ input ได้
         marginBottom={20}
       />
+      
 
       <Text style={styles.Title2}>อธิบายตัวตนของคุณให้ลูกค้ารู้จักมากขึ้น</Text>
       <Text style={styles.Text}>

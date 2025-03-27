@@ -2,21 +2,40 @@ const express = require("express");
 const sqlite3 = require("sqlite3").verbose();
 const bcrypt = require("bcryptjs");
 const jwt = require("jsonwebtoken");
+const path = require("path");
+const multer = require("multer");
 
 const app = express();
+
+const cors = require("cors");
+
+
 app.use(express.json());
+app.use(cors());  //ใช้ cors 
+
+
 
 const db = new sqlite3.Database("./userDB.db", (err) => {
-    if (err) console.error(err.message);
-    console.log("Connected to SQLite DB");
+  if (err) console.error(err.message);
+  console.log("Connected to SQLite DB");
 });
+
+
+const fs = require("fs");
+const uploadDir = path.join(__dirname, "uploads");
+
+if (!fs.existsSync(uploadDir)) {
+  fs.mkdirSync(uploadDir);
+}
+
+
 
 db.run(`CREATE TABLE IF NOT EXISTS Users(
     id_user INTEGER PRIMARY KEY AUTOINCREMENT,
     username TEXT UNIQUE,
     email TEXT UNIQUE,
     password TEXT,
-    picture TEXT
+    picture TEXT DEFAULT 'https://static.vecteezy.com/system/resources/previews/005/544/718/non_2x/profile-icon-design-free-vector.jpg'
   )`);
 
 db.run(`CREATE TABLE IF NOT EXISTS Verify(
@@ -86,5 +105,166 @@ db.run(`CREATE TABLE IF NOT EXISTS Payment(
     payment_time TIMESTAMP,
     FOREIGN KEY (id_user) REFERENCES Users(id_user) ON DELETE CASCADE
 )`);
+
+////////////////////
+//สมัครสมาชิก
+////////////////////
+
+app.post("/register", async (req, res) => {
+  const { username, email, password, picture } = req.body;
+
+  // ตรวจสอบว่าข้อมูลครบหรือไม่
+  if (!email || !username || !password) {
+    return res.status(400).json({ error: "All fields are required" });
+  }
+
+  db.get(
+    `SELECT * FROM Users WHERE username = ? OR email = ?`,
+    [username, email],
+    async (err, user) => {
+      if (err) {
+        console.error("❌ Database error:", err);
+        return res.status(500).json({ error: "Database error" });
+      }
+
+      console.log("🔍 Checking existing user:", user); // ✅ Debug log
+
+      if (user) {
+        return res.status(409).json({ error: "User already exists" }); // 409 Conflict
+      }
+
+      const encryptedPassword = await bcrypt.hash(password, 10);
+      console.log("✅ Encrypting Password for:", username, email);
+
+      // ถ้าไม่มี picture ให้ใช้ default
+      const profilePic =
+        picture ||
+        "https://static.vecteezy.com/system/resources/previews/005/544/718/non_2x/profile-icon-design-free-vector.jpg";
+
+      db.run(
+        `INSERT INTO Users (username, email, password, picture) VALUES (?, ?, ?, ?)`,
+        [username, email, encryptedPassword, profilePic],
+        function (err) {
+          if (err) {
+            console.error("❌ Insert Error:", err);
+            return res.status(400).json({ error: "Insert Failed" });
+          }
+          res.json({ message: "User registered successfully" });
+        }
+      );
+    }
+  );
+});
+
+////////////////////
+// Login
+////////////////////
+
+app.post("/login", async (req, res) => {
+  const { identifier, password } = req.body;
+  console.log("Login is called", identifier, "******");
+
+  //ค้นหาผู้ใช้จาก user และ email
+  db.get(
+    `SELECT * FROM Users WHERE username = ? OR email = ?
+`,
+    [identifier, identifier],
+    async (err, user) => {
+      if (!user || !(await bcrypt.compare(password, user.password))) {
+        // bcrypt คือ password ที่ถูก Hash ไปแล้ว
+        return res.status(400).send({ message: "Invalid credential" }); // password ไม่ตรงกัน เรียกว่า credential
+      }
+      const token = jwt.sign({ userId: user.id_user }, "secretkey"); //secretkey ต้องมี
+      res.send({ token, userId: user.id_user }); // ส่งทั้ง token และ userId
+      console.log("Login Response:", { token, userId: user.id_user }); // แสดงผลที่ต้องการ
+    }
+  );
+});
+
+////////////////////
+// Profile 
+////////////////////
+app.get("/profile/:userId", (req, res) => {
+  const userId = req.params.userId;
+  console.log("Received userId from server:", userId); // ตรวจสอบว่า userId ที่ได้รับถูกต้องหรือไม่
+  db.get(
+    `SELECT username, email, picture FROM Users WHERE id_user = ?`,
+    [userId],
+    (err, user) => {
+      if (err) {
+        console.error("Error fetching user:", err);
+        return res.status(500).send({ message: "Error fetching user" });
+      }
+
+      if (!user) {
+        return res.status(404).send({ message: "User not found" });
+      }
+
+      res.send(user); // ส่งข้อมูลผู้ใช้พร้อม URL รูปภาพ
+    }
+  );
+});
+
+////////////////////
+// Upload verify
+////////////////////
+
+const storage = multer.diskStorage({
+  destination: function (req, file, cb) {
+    cb(null, "uploads/");
+  },
+  filename: function (req, file, cb) {
+    cb(null, Date.now() + "-" + file.originalname);
+  },
+});
+
+const upload = multer({ storage: storage });
+
+// ✅ ตรวจสอบ JWT token เพื่อดึง id_user
+const authenticateJWT = (req, res, next) => {
+  const token = req.header("Authorization");
+
+  if (!token) return res.status(403).send("Access Denied");
+
+  jwt.verify(token, "secretkey", (err, user) => {
+    if (err) return res.status(403).send("Access Denied");
+    req.user = user; // เก็บ user จาก JWT token
+    next();
+  });
+};
+
+// ✅ API อัปโหลดรูปภาพและบันทึกลงฐานข้อมูล
+app.post("/upload", authenticateJWT, upload.fields([{ name: "selfie" }, { name: "idCard" }]), (req, res) => {
+  if (!req.files || !req.files.selfie || !req.files.idCard) {
+    return res.status(400).json({ error: "ต้องอัปโหลดรูปให้ครบทั้งสองรูป" });
+  }
+
+    // ตรวจสอบว่าไฟล์ selfie และ idCard ถูกอัปโหลดครบหรือไม่
+    if (req.files.selfie.length === 0 || req.files.idCard.length === 0) {
+      return res.status(400).json({ error: "ต้องอัปโหลดรูปทั้งสองรูป: รูปเซลฟี่และบัตรประชาชน" });
+    }
+
+  const selfiePath = `http://172.20.10.7:5000/uploads/${req.files.selfie[0].filename}`;
+  const idCardPath = `http://172.20.10.7:5000/uploads/${req.files.idCard[0].filename}`;
+  const id_user = req.user.userId; // ใช้ `userId` จาก JWT token
+
+  // 🔥 บันทึกลงฐานข้อมูล
+  db.run(
+    `INSERT INTO Verify (selfie_with_id_card, id_card_image, id_user) VALUES (?, ?, ?)`,
+    [selfiePath, idCardPath, id_user],
+    function (err) {
+      if (err) {
+        return res.status(500).json({ error: err.message });
+      }
+      res.json({
+        success: true,
+        selfieUrl: selfiePath,
+        idCardUrl: idCardPath,
+        id_verify: this.lastID, // คืนค่า id_verify ที่ถูกสร้าง
+      });
+    }
+  );
+});
+
 
 app.listen(5000, () => console.log("Server running on port 5000"));
