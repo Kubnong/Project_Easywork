@@ -90,41 +90,57 @@ export const loginUser = async (identifier, password) => {
 
 
 // ฟังก์ชันเพื่ออัปโหลดรูปภาพพร้อมกับส่ง JWT token
-export const uploadImages = async (selfieUri, idCardUri, token) => {
+export const addVerify = async (Name , Surname , Idcard , Birthdate , Address ,Selfieimage , image , userId ) => {
   try {
-    const formData = new FormData();
-
-    // 📸 เพิ่มไฟล์รูปภาพลง FormData
-    formData.append("selfie", {
-      uri: selfieUri,
-      name: "selfie.jpg",
-      type: "image/jpeg",
+    console.log("Data sent to API:", { Name , Surname , Idcard , Birthdate , Address ,Selfieimage , image , userId });
+    const response = await axios.post(`${API_URL}/addVerify`, {
+      Name,
+      Surname,
+      Idcard,
+      Birthdate,
+      Address,
+      Selfieimage,
+      image,
+      userId, // ส่ง userId ไปด้วย
     });
-
-    formData.append("idCard", {
-      uri: idCardUri,
-      name: "idCard.jpg",
-      type: "image/jpeg",
-    });
-
-    // 🔥 ส่งรูปภาพไปที่ API พร้อม JWT token
-    const response = await axios.post("http://172.20.10.7:5000/upload", formData, {
-      headers: {
-        "Content-Type": "multipart/form-data",
-        "Authorization": `Bearer ${token}`,  // ส่ง JWT token ไปใน Header
-      },
-    });
-
-    if (response.data.success) {
-      const { selfieUrl, idCardUrl, id_verify } = response.data;
-      console.log("Upload successful!", { selfieUrl, idCardUrl, id_verify });
-      return { selfieUrl, idCardUrl, id_verify };
-    } else {
-      console.error("Upload failed:", response.data.error);
-      return null;
-    }
+    return response.data;
   } catch (error) {
-    console.error("Error uploading images:", error);
-    return null;
+    console.error("Error in addVerify API:", error.response?.data || error.message);
+    throw new Error(error.response?.data?.message || "Error adding verify");
+  }
+};
+
+// สมัครฟรีแลนซ์
+export const getVerify = async () => {
+  try {
+    const response = await fetch(`${API_URL}/getVerify`);
+    const data = await response.json();
+    return data; // ส่งข้อมูลกลับ (เช่น { id_verify: 1 })
+  } catch (error) {
+    console.error("Error fetching verify data:", error);
+    throw error;
+  }
+};
+
+
+// สมัครฟรีแลนซ์
+export const saveFreelance = async (idVerify, aboutFreelance) => {
+  try {
+    const response = await fetch(`${API_URL}/savefreelance`, {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({
+        id_verify: idVerify, // ส่ง id_verify ที่ได้จาก getVerify
+        about_freelance: aboutFreelance, // ข้อมูลเกี่ยวกับฟรีแลนซ์ที่กรอก
+      }),
+    });
+
+    const result = await response.json();
+    return result; // ส่งผลลัพธ์กลับมา (เช่น { success: true })
+  } catch (error) {
+    console.error("Error saving freelance data:", error);
+    throw error;
   }
 };

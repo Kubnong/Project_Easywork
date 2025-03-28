@@ -45,7 +45,6 @@ db.run(`CREATE TABLE IF NOT EXISTS Verify(
     id_card TEXT UNIQUE,
     birthday DATE,
     address TEXT,
-    phone TEXT UNIQUE,
     selfie_with_id_card TEXT,
     id_card_image TEXT,
     id_user INTEGER,
@@ -55,7 +54,7 @@ db.run(`CREATE TABLE IF NOT EXISTS Verify(
 db.run(`CREATE TABLE IF NOT EXISTS Freelance(
   id_freelance INTEGER PRIMARY KEY AUTOINCREMENT,
   id_verify INTEGER,
-  register_date DATE,
+  about_freelance,
   FOREIGN KEY (id_verify) REFERENCES Verify(id_verify) ON DELETE CASCADE
 )`);
 
@@ -92,22 +91,11 @@ db.run(`CREATE TABLE IF NOT EXISTS Employment(
     id_user INTEGER,
     id_freelance INTEGER,
     id_work INTEGER,
-    employment_date DATE,
-    employment_time TIMESTAMP,
-    employment_status TEXT,
     FOREIGN KEY (id_user) REFERENCES Users(id_user) ON DELETE CASCADE,
     FOREIGN KEY (id_freelance) REFERENCES Freelance(id_freelance) ON DELETE CASCADE,
     FOREIGN KEY (id_work) REFERENCES Work(id_work) ON DELETE CASCADE
 )`);
 
-db.run(`CREATE TABLE IF NOT EXISTS Payment(
-    id_payment INTEGER PRIMARY KEY AUTOINCREMENT,
-    id_user INTEGER,
-    amout INTEGER,
-    payment_date DATE,
-    payment_time TIMESTAMP,
-    FOREIGN KEY (id_user) REFERENCES Users(id_user) ON DELETE CASCADE
-)`);
 
 ////////////////////
 //สมัครสมาชิก
@@ -208,66 +196,9 @@ app.get("/profile/:userId", (req, res) => {
   );
 });
 
-////////////////////
-// Upload verify
-////////////////////
 
-const storage = multer.diskStorage({
-  destination: function (req, file, cb) {
-    cb(null, "uploads/");
-  },
-  filename: function (req, file, cb) {
-    cb(null, Date.now() + "-" + file.originalname);
-  },
-});
 
-const upload = multer({ storage: storage });
 
-// ✅ ตรวจสอบ JWT token เพื่อดึง id_user
-const authenticateJWT = (req, res, next) => {
-  const token = req.header("Authorization");
-
-  if (!token) return res.status(403).send("Access Denied");
-
-  jwt.verify(token, "secretkey", (err, user) => {
-    if (err) return res.status(403).send("Access Denied");
-    req.user = user; // เก็บ user จาก JWT token
-    next();
-  });
-};
-
-// ✅ API อัปโหลดรูปภาพและบันทึกลงฐานข้อมูล
-app.post("/upload", authenticateJWT, upload.fields([{ name: "selfie" }, { name: "idCard" }]), (req, res) => {
-  if (!req.files || !req.files.selfie || !req.files.idCard) {
-    return res.status(400).json({ error: "ต้องอัปโหลดรูปให้ครบทั้งสองรูป" });
-  }
-
-    // ตรวจสอบว่าไฟล์ selfie และ idCard ถูกอัปโหลดครบหรือไม่
-    if (req.files.selfie.length === 0 || req.files.idCard.length === 0) {
-      return res.status(400).json({ error: "ต้องอัปโหลดรูปทั้งสองรูป: รูปเซลฟี่และบัตรประชาชน" });
-    }
-
-  const selfiePath = `http://172.20.10.7:5000/uploads/${req.files.selfie[0].filename}`;
-  const idCardPath = `http://172.20.10.7:5000/uploads/${req.files.idCard[0].filename}`;
-  const id_user = req.user.userId; // ใช้ `userId` จาก JWT token
-
-  // 🔥 บันทึกลงฐานข้อมูล
-  db.run(
-    `INSERT INTO Verify (selfie_with_id_card, id_card_image, id_user) VALUES (?, ?, ?)`,
-    [selfiePath, idCardPath, id_user],
-    function (err) {
-      if (err) {
-        return res.status(500).json({ error: err.message });
-      }
-      res.json({
-        success: true,
-        selfieUrl: selfiePath,
-        idCardUrl: idCardPath,
-        id_verify: this.lastID, // คืนค่า id_verify ที่ถูกสร้าง
-      });
-    }
-  );
-});
 
 /*
 // ลบข้อมูลทั้งหมดจากตาราง Category
@@ -363,4 +294,71 @@ app.post("/addwork", (req, res) => {
   );
 });
 
+app.post("/addVerify", (req, res) => {
+  const { Name , Surname , Idcard , Birthdate , Address ,Selfieimage , image , userId } = req.body;
+
+  if (!Name || !Surname || !Idcard || !Birthdate || !Address || !Selfieimage || !image ||!userId) {
+    return res.status(400).send({ message: "กรุณากรอกข้อมูลให้ครบถ้วน" });
+  }
+
+  db.run(
+    `INSERT INTO Verify (name, lastname, id_card, birthday, selfie_with_id_card, id_card_image , id_user)
+    VALUES (?, ?, ?, ?, ?, ?, ?)`,
+    [Name , Surname , Idcard , Birthdate , Address ,Selfieimage , image , userId],
+    function (err) {
+      if (err) {
+        console.error("Error adding verify:", err);
+        return res.status(500).send({ message: "Error adding work", error: err });
+      }
+      res.send({ message: "Your verify added successfully", VerifyId: this.userId });
+    }
+  );
+});
+
+app.get("/getVerify", (req, res) => {
+  db.all(
+    `SELECT id_verify FROM Verify WHERE id_user = ?`, // เลือกข้อมูลที่เกี่ยวข้องกับ id_user ที่ส่งมาจากฝั่งไคลเอนต์
+    [req.query.userId], // ใช้ query parameters เพื่อส่งค่า id_user มา
+    (err, rows) => {
+      if (err) {
+        console.error("Error fetching verify data:", err);
+        return res.status(500).send({ message: "Error fetching verify data", error: err });
+      }
+      if (rows.length > 0) {
+        res.json(rows[0]); // ส่ง id_verify กลับไปยังฝั่งไคลเอนต์
+      } else {
+        res.status(404).send({ message: "No verify data found for this user" });
+      }
+    }
+  );
+});
+
+
+
+// บันทึกข้อมูลการสมัครฟรีแลนซ์
+
+app.post("/savefreelance", (req, res) => {
+  const { id_verify, about_freelance } = req.body; // รับข้อมูลจากฝั่งไคลเอนต์
+
+  // ตรวจสอบว่ามีข้อมูลครบถ้วนหรือไม่
+  if (!id_verify || !about_freelance) {
+    return res.status(400).send({ message: "Missing id_verify or about_freelance" });
+  }
+
+  // คำสั่ง SQL เพื่อบันทึกข้อมูลฟรีแลนซ์ลงในฐานข้อมูล
+  db.run(
+    `INSERT INTO Freelance (id_verify, about_freelance) VALUES (?, ?)`,
+    [id_verify, about_freelance], // ส่งค่าที่รับมาเป็นพารามิเตอร์
+    function (err) {
+      if (err) {
+        console.error("Error saving freelance data:", err);
+        return res.status(500).send({ message: "Error saving freelance data", error: err });
+      }
+      res.status(201).send({ message: "Freelance data saved successfully", id_freelance: this.lastID });
+    }
+  );
+});
+
+
 app.listen(5000, () => console.log("Server running on port 5000"));
+

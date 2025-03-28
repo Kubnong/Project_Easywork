@@ -1,61 +1,94 @@
 import React, { useState } from "react";
-import { View, Text, StyleSheet, Image, ScrollView } from "react-native";
+import { View, Text, StyleSheet, Image, ScrollView, Alert } from "react-native";
 import CustomButton from "../components/CustomButton";
 import Feather from "@expo/vector-icons/Feather";
 import InputBox from "../components/InputBox";
 import AntDesign from "@expo/vector-icons/AntDesign";
 import * as ImagePicker from "expo-image-picker";
+import { addVerify } from "../services/api";
+import AsyncStorage from "@react-native-async-storage/async-storage";
 
-const Verify = ({ navigation , route}) => {
+const Verify = ({ navigation, route }) => {
+  const [image, setImage] = useState(null);
+  const [Name, setName] = useState("");
+  const [Surname, setSurname] = useState("");
+  const [Idcard, setIdcard] = useState("");
+  const [Birthdate, setBirthdate] = useState("");
+  const [Address, setAddress] = useState("");
+  const [Selfieimage, setSelfieimage] = useState(null);
 
-  const [imageUri, setImageUri] = useState(null); // เก็บ URL ของรูปที่อัปโหลด
   const { user } = route.params; // รับข้อมูล user ที่ส่งมาจากหน้า Profile
 
-  
-  const handleUploadImage = async () => {
-    // ขออนุญาติเข้าถึงรูปภาพในแกลอรี่
-    const { status } = await ImagePicker.requestMediaLibraryPermissionsAsync();
-
-    if (status !== "granted") {
-      Alert.alert("การเข้าถึงถูกปฏิเสธ", "โปรดให้สิทธิ์ในการเข้าถึงแกลอรี่");
-      return;
-    }
-
-    // เปิดการเลือกรูปภาพจากแกลเลอรี
-    const result = await ImagePicker.launchImageLibraryAsync({
-      mediaTypes: ImagePicker.MediaTypeOptions.Images,
+  const pickImage = async () => {
+    // No permissions request is necessary for launching the image library
+    let result = await ImagePicker.launchImageLibraryAsync({
+      mediaTypes: ["images", "videos"],
+      allowsEditing: true,
+      aspect: [4, 3],
       quality: 1,
     });
 
-    if (!result.cancelled) {
-      const file = result.uri; // ได้ URI ของรูปที่เลือก
-      const formData = new FormData();
-      formData.append("file", {
-        uri: file,
-        name: "image.jpg", // หรือเปลี่ยนชื่อไฟล์ตามต้องการ
-        type: "image/jpeg", // หรือเปลี่ยนเป็น type ที่ตรงกับไฟล์ที่อัปโหลด
-      });
+    console.log(result);
 
-      try {
-        const response = await fetch("http://172.20.10.7:5000/upload", {
-          method: "POST",
-          body: formData,
-          headers: {
-            "Content-Type": "multipart/form-data",
-          },
-        });
+    if (!result.canceled) {
+      setImage(result.assets[0].uri);
+    }
+  };
 
-        const data = await response.json();
-        if (response.ok) {
-          setImageUri(data.imageUrl); // ใช้ URL ที่ได้จาก server
-          Alert.alert("อัปโหลดสำเร็จ!", "ไฟล์ของคุณถูกอัปโหลดแล้ว");
-        } else {
-          throw new Error(data.error || "Upload failed");
-        }
-      } catch (error) {
-        console.error("Upload Error:", error);
-        Alert.alert("เกิดข้อผิดพลาด", "อัปโหลดไม่สำเร็จ กรุณาลองใหม่อีกครั้ง");
+  const pickSelfieimage = async () => {
+    // No permissions request is necessary for launching the image library
+    let result = await ImagePicker.launchImageLibraryAsync({
+      mediaTypes: ["images", "videos"],
+      allowsEditing: true,
+      aspect: [4, 3],
+      quality: 1,
+    });
+    console.log(result);
+
+    if (!result.canceled) {
+      setSelfieimage(result.assets[0].uri);
+    }
+  };
+
+  const handleVerify = async () => {
+    try {
+      const userId = await AsyncStorage.getItem("userId");
+      if (!userId) {
+        Alert.alert("Error", "ไม่พบข้อมูลผู้ใช้ กรุณาล็อกอินใหม่");
+        return;
       }
+
+      if (
+        (!Name, !Surname, !Birthdate, !Address, !Idcard, !Selfieimage, !image)
+      ) {
+        Alert.alert("บันทึกข้อมูลการยืนยันตัวตนผิดพลาด", "กรุณากรอกข้อมูลให้ครบถ้วน");
+        return;
+      }
+
+      console.log(
+        Name,
+        Surname,
+        Idcard,
+        Birthdate,
+        Address,
+        Selfieimage,
+        image,
+        userId
+      );
+      await addVerify(
+        Name,
+        Surname,
+        Idcard,
+        Birthdate,
+        Address,
+        Selfieimage,
+        image,
+        userId
+      );
+      navigation.navigate("RegisFreelanceScreen", { user });
+      Alert.alert("Addverify Successful");
+    } catch (error) {
+      Alert.alert("Addverify Failed", error.message);
     }
   };
 
@@ -71,9 +104,7 @@ const Verify = ({ navigation , route}) => {
           </Text>
           <Image
             source={
-              imageUri
-                ? { uri: imageUri }
-                : require("../../assets/girl-smile.jpg")
+              image ? { uri: image } : require("../../assets/girl-smile.jpg")
             }
             style={{
               width: 310,
@@ -93,7 +124,7 @@ const Verify = ({ navigation , route}) => {
             width={259}
             icon={<Feather name="upload-cloud" size={24} color="#299335" />}
             iconPosition="right"
-            onPress={handleUploadImage}
+            onPress={pickImage}
           />
         </View>
 
@@ -101,9 +132,7 @@ const Verify = ({ navigation , route}) => {
           <Text style={styles.Text}>รูปเห็นบัตรประชาชน</Text>
           <Text style={styles.Text2}>เห็นรายละเอียดครบถ้วนชัดเจน</Text>
           <Image
-            source={
-              imageUri ? { uri: imageUri } : require("../../assets/idcard.png")
-            }
+            source={image ? { uri: image } : require("../../assets/idcard.png")}
             style={{
               width: 310,
               height: 150,
@@ -122,7 +151,7 @@ const Verify = ({ navigation , route}) => {
               width={259}
               icon={<Feather name="upload-cloud" size={24} color="#299335" />}
               iconPosition="right"
-              onPress={handleUploadImage}
+              onPress={pickSelfieimage}
             />
           </View>
         </View>
@@ -140,6 +169,7 @@ const Verify = ({ navigation , route}) => {
                   borderColor="#D5D5D5"
                   width={150}
                   height={40}
+                  onChangeText={setName}
                 />
               </View>
 
@@ -151,6 +181,7 @@ const Verify = ({ navigation , route}) => {
                     borderColor="#D5D5D5"
                     width={150}
                     height={40}
+                    onChangeText={setSurname}
                   />
                 </View>
               </View>
@@ -164,6 +195,7 @@ const Verify = ({ navigation , route}) => {
                   borderColor="#D5D5D5"
                   width={320}
                   height={40}
+                  onChangeText={setIdcard}
                 />
               </View>
 
@@ -174,6 +206,7 @@ const Verify = ({ navigation , route}) => {
                   borderColor="#D5D5D5"
                   width={320}
                   height={40}
+                  onChangeText={setBirthdate}
                 />
               </View>
             </View>
@@ -191,64 +224,18 @@ const Verify = ({ navigation , route}) => {
               <Text style={styles.Text}>รายละเอียดที่อยู่</Text>
               <View style={{ alignSelf: "center" }}>
                 <InputBox
-                  placeholder="เช่น 102/6 ถนนประชาอุทิศ"
+                  placeholder="เช่น 102/6 ตำบล อำเภอ จังหวัด ไปรษณีย์"
                   borderColor="#D5D5D5"
                   width={320}
-                  height={40}
+                  height="auto"
+                  multiline={true}
+                  onChangeText={setAddress}
                 />
-              </View>
-
-              <View style={{ flexDirection: "row", alignSelf: "center" }}>
-                <View>
-                  <Text style={styles.Text}>รหัสไปรษณีย์</Text>
-                  <InputBox
-                    placeholder="เช่น 60140"
-                    borderColor="#D5D5D5"
-                    width={150}
-                    height={40}
-                  />
-                </View>
-
-                <View>
-                  <View>
-                    <Text style={styles.Text}>ตำบล/แขวง</Text>
-                    <InputBox
-                      placeholder="เช่น หนองหม้อ"
-                      borderColor="#D5D5D5"
-                      width={150}
-                      height={40}
-                    />
-                  </View>
-                </View>
-              </View>
-
-              <View style={{ flexDirection: "row", alignSelf: "center" }}>
-                <View>
-                  <Text style={styles.Text}>อำเภอ/เขต</Text>
-                  <InputBox
-                    placeholder="เช่น ตาคลี"
-                    borderColor="#D5D5D5"
-                    width={150}
-                    height={40}
-                  />
-                </View>
-
-                <View>
-                  <View>
-                    <Text style={styles.Text}>จังหวัด</Text>
-                    <InputBox
-                      placeholder="เช่น นครสวรรค์"
-                      borderColor="#D5D5D5"
-                      width={150}
-                      height={40}
-                    />
-                  </View>
-                </View>
               </View>
             </View>
           </View>
         </View>
-        <View style={{ marginVertical : 10}}>
+        <View style={{ marginVertical: 10 }}>
           <CustomButton
             title="บันทึก และไปต่อ"
             color="white"
@@ -258,13 +245,9 @@ const Verify = ({ navigation , route}) => {
             marginBottom={80}
             icon={<AntDesign name="arrowright" size={24} color="white" />}
             iconPosition="right"
-            onPress={() => {
-              navigation.navigate("RegisFreelanceScreen" , {user})
-            }}
+            onPress={handleVerify}
           />
         </View>
-
-        
       </View>
     </ScrollView>
   );

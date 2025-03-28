@@ -120,7 +120,7 @@ const App = () => {
 
   return (
     <NavigationContainer>
-      {userToken ? <MainStack /> : <AuthStack />}
+      {userToken && userId ? <MainStack /> : <AuthStack />}
 
       {userToken && userId && <FunctionBar />}
     </NavigationContainer>
