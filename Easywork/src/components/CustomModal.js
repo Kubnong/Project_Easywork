@@ -1,17 +1,16 @@
 import React from "react";
 import { View, Modal, Text, StyleSheet , TouchableOpacity , Image} from "react-native";
 
-const CustomModal = ({visible , onClose, title , message}) => {
-    
+const CustomModal = ({visible , onClose, title , message, width, height, marginBottom, widthcontainer}) => {
     return( 
             <Modal transparent={true} animationType="fade" visible={visible}>  
                 <View style={styles.ModalOverlay}>
-                    <View style={styles.ModalContainer}>
+                    <View style={[styles.ModalContainer,{width:widthcontainer||350}]}>
                         <Image
                                   source={require("../../assets/circle-arrow.png")}
                                   style={{
-                                    width: 200,
-                                    height: 200,
+                                    width: width || 200,
+                                    height: height || 200,
                                     alignSelf: "center",
                                     borderRadius: 20,
                                     marginTop: 5,
@@ -19,11 +18,12 @@ const CustomModal = ({visible , onClose, title , message}) => {
                                   }}
                                 />
                         <Text style={styles.title}>{title}</Text>
-                        <Text style={styles.msg}>{message}</Text>
-                        <TouchableOpacity style={styles.OkButton}
-                        onPress={onClose}
+                        <Text style={[styles.msg,{marginBottom:marginBottom||20}]}>{message}</Text>
+                        <TouchableOpacity 
+                            style={styles.OkButton}
+                            onPress={onClose}
                         >
-                        <Text style={styles.OkButtonText}>ตกลง</Text> 
+                            <Text style={styles.OkButtonText}>ตกลง</Text> 
                         </TouchableOpacity>
                     </View>
                 </View>
@@ -42,7 +42,6 @@ const styles = StyleSheet.create({
     },
 
     ModalContainer:{
-        width: 350,
         backgroundColor: 'white',
         borderRadius: 10,
         padding:20,
@@ -60,7 +59,6 @@ const styles = StyleSheet.create({
     msg:{
         fontSize: 18,
         textAlign: 'center',
-        marginBottom: 20,
         color: "#BAADAD"
     },
 
