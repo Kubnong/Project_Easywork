@@ -59,7 +59,7 @@ const Verify = ({ navigation, route }) => {
       }
 
       if (
-        (!Name, !Surname, !Birthdate, !Address, !Idcard, !Selfieimage, !image)
+        (!Name || !Surname || !Birthdate || !Address || !Idcard || !Selfieimage || !image)
       ) {
         Alert.alert("บันทึกข้อมูลการยืนยันตัวตนผิดพลาด", "กรุณากรอกข้อมูลให้ครบถ้วน");
         return;
@@ -132,7 +132,7 @@ const Verify = ({ navigation, route }) => {
           <Text style={styles.Text}>รูปเห็นบัตรประชาชน</Text>
           <Text style={styles.Text2}>เห็นรายละเอียดครบถ้วนชัดเจน</Text>
           <Image
-            source={image ? { uri: image } : require("../../assets/idcard.png")}
+            source={Selfieimage ? { uri: Selfieimage } : require("../../assets/idcard.png")}
             style={{
               width: 310,
               height: 150,

@@ -212,39 +212,6 @@ const authenticateJWT = (req, res, next) => {
   });
 };
 
-// ✅ API อัปโหลดรูปภาพและบันทึกลงฐานข้อมูล
-app.post("/upload", authenticateJWT, upload.fields([{ name: "selfie" }, { name: "idCard" }]), (req, res) => {
-  if (!req.files || !req.files.selfie || !req.files.idCard) {
-    return res.status(400).json({ error: "ต้องอัปโหลดรูปให้ครบทั้งสองรูป" });
-  }
-
-    // ตรวจสอบว่าไฟล์ selfie และ idCard ถูกอัปโหลดครบหรือไม่
-    if (req.files.selfie.length === 0 || req.files.idCard.length === 0) {
-      return res.status(400).json({ error: "ต้องอัปโหลดรูปทั้งสองรูป: รูปเซลฟี่และบัตรประชาชน" });
-    }
-
-  const selfiePath = `http://192.168.1.115:5000/uploads/${req.files.selfie[0].filename}`;
-  const idCardPath = `http://192.168.1.115:5000/uploads/${req.files.idCard[0].filename}`;
-  const id_user = req.user.userId; // ใช้ `userId` จาก JWT token
-
-  // 🔥 บันทึกลงฐานข้อมูล
-  db.run(
-    `INSERT INTO Verify (selfie_with_id_card, id_card_image, id_user) VALUES (?, ?, ?)`,
-    [selfiePath, idCardPath, id_user],
-    function (err) {
-      if (err) {
-        return res.status(500).json({ error: err.message });
-      }
-      res.json({
-        success: true,
-        selfieUrl: selfiePath,
-        idCardUrl: idCardPath,
-        id_verify: this.lastID, // คืนค่า id_verify ที่ถูกสร้าง
-      });
-    }
-  );
-});
-
 
 /*
 // ลบข้อมูลทั้งหมดจากตาราง Category
@@ -405,10 +372,6 @@ app.post("/savefreelance", (req, res) => {
     }
   );
 });
-
-
-app.listen(5000, () => console.log("Server running on port 5000"));
-
 
 app.get("/getworks", (req, res) => {
   db.all(
