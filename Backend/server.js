@@ -59,7 +59,7 @@ db.run(`CREATE TABLE IF NOT EXISTS Freelance(
   FOREIGN KEY (id_verify) REFERENCES Verify(id_verify) ON DELETE CASCADE
 )`);
 
-db.run(`ALTER TABLE Freelance ADD COLUMN freelance_detail TEXT`)
+//db.run(`ALTER TABLE Freelance ADD COLUMN freelance_detail TEXT`);
 
 
 db.run(`CREATE TABLE IF NOT EXISTS Category(
@@ -247,8 +247,8 @@ app.post("/upload", authenticateJWT, upload.fields([{ name: "selfie" }, { name: 
       return res.status(400).json({ error: "ต้องอัปโหลดรูปทั้งสองรูป: รูปเซลฟี่และบัตรประชาชน" });
     }
 
-  const selfiePath = `http://172.20.10.7:5000/uploads/${req.files.selfie[0].filename}`;
-  const idCardPath = `http://172.20.10.7:5000/uploads/${req.files.idCard[0].filename}`;
+  const selfiePath = `http://10.34.108.186:5000/uploads/${req.files.selfie[0].filename}`;
+  const idCardPath = `http://10.34.108.186:5000/uploads/${req.files.idCard[0].filename}`;
   const id_user = req.user.userId; // ใช้ `userId` จาก JWT token
 
   // 🔥 บันทึกลงฐานข้อมูล
@@ -318,7 +318,7 @@ app.post("/select", (req, res) => {
   console.log("Selected Category:", selectedcategory);
 
   db.all(
-    `SELECT TypeWork.name_typework
+    `SELECT TypeWork.id_typework,TypeWork.name_typework
     FROM TypeWork
     JOIN Category ON TypeWork.id_category = Category.id_category
     WHERE Category.name_category = ?;`, [selectedcategory],
@@ -333,11 +333,32 @@ app.post("/select", (req, res) => {
       // แปลงข้อมูลให้อยู่ในรูปแบบที่เหมาะสม
       const formattedData = rows.map((item) => ({
         label: item.name_typework,
-        value: item.name_typework,
+        value: item.id_typework,
       }));
 
       console.log("Formatted Data:", formattedData);
       res.send(formattedData);
+    }
+  );
+});
+
+app.post("/addwork", (req, res) => {
+  const { name, description, price, finishtime, image, selectedtypework, userId } = req.body;
+
+  if (!name || !description || !price || !finishtime || !selectedtypework || !userId) {
+    return res.status(400).send({ message: "กรุณากรอกข้อมูลให้ครบถ้วน" });
+  }
+
+  db.run(
+    `INSERT INTO Work (name_work, description, price, finish_time, Portfolio, id_typework, id_freelance)
+    VALUES (?, ?, ?, ?, ?, ?, ?)`,
+    [name, description, price, finishtime, image, selectedtypework, userId],
+    function (err) {
+      if (err) {
+        console.error("Error adding work:", err);
+        return res.status(500).send({ message: "Error adding work", error: err });
+      }
+      res.send({ message: "Work added successfully", workId: this.lastID });
     }
   );
 });
