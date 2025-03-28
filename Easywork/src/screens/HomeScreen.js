@@ -36,6 +36,12 @@ const HomeScreen = ({navigation}) => {
             > 
                 <Text>Test Add Work</Text>
             </TouchableOpacity>
+            <TouchableOpacity 
+                style={styles.test}
+                onPress={() => navigation.navigate("WorkScreen")}
+            > 
+                <Text>Test WorkScreen</Text>
+            </TouchableOpacity>
             <View>
                 <FlatList
                     data={categories}

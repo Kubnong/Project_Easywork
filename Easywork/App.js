@@ -10,6 +10,8 @@ import Login from "./src/screens/Login";
 import RegisFreelance from "./src/screens/RegisFreelance";
 import Verify from "./src/screens/Verify";
 import DetailScreen from "./src/screens/DetailScreen";
+import WorkScreen from "./src/screens/WorkScreen";
+import EmploymentScreen from "./src/screens/EmploymenScreen";
 import LinearGradient from "react-native-linear-gradient";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import FunctionBar from "./src/components/FunctionBar";
@@ -72,6 +74,8 @@ const App = () => {
 
       <Stack.Screen name="AddDetail" component={AddDetail} />
       <Stack.Screen name="DetailScreen" component={DetailScreen} />
+      <Stack.Screen name="WorkScreen" component={WorkScreen} />
+      <Stack.Screen name="EmploymentScreen" component={EmploymentScreen} />
       <Stack.Screen
         name="VerifyScreen"
         component={Verify}

@@ -1,6 +1,6 @@
 import axios from "axios";
 
-const API_URL = "http://172.20.10.7:5000";
+const API_URL = "http://192.168.1.115:5000";
 
 export const categories = async () => {
   try {
@@ -42,6 +42,17 @@ export const addWork = async (name, description, price, finishtime, image, selec
     throw new Error(error.response?.data?.message || "Error adding work");
   }
 };
+
+export const getWorks = async () => {
+  try {
+    const response = await fetch(`${API_URL}/getworks`);
+    const data = await response.json();
+    return data;
+  } catch (error) {
+    console.error("Error fetching works:", error);
+    throw error;
+  }
+}
 
 export const registerUser = async (
   username,
@@ -108,7 +119,7 @@ export const uploadImages = async (selfieUri, idCardUri, token) => {
     });
 
     // 🔥 ส่งรูปภาพไปที่ API พร้อม JWT token
-    const response = await axios.post("http://172.20.10.7:5000/upload", formData, {
+    const response = await axios.post("http://192.168.1.115:5000/upload", formData, {
       headers: {
         "Content-Type": "multipart/form-data",
         "Authorization": `Bearer ${token}`,  // ส่ง JWT token ไปใน Header

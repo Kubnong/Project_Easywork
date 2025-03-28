@@ -247,8 +247,8 @@ app.post("/upload", authenticateJWT, upload.fields([{ name: "selfie" }, { name: 
       return res.status(400).json({ error: "ต้องอัปโหลดรูปทั้งสองรูป: รูปเซลฟี่และบัตรประชาชน" });
     }
 
-  const selfiePath = `http://172.20.10.7:5000/uploads/${req.files.selfie[0].filename}`;
-  const idCardPath = `http://172.20.10.7:5000/uploads/${req.files.idCard[0].filename}`;
+  const selfiePath = `http://192.168.1.115:5000/uploads/${req.files.selfie[0].filename}`;
+  const idCardPath = `http://192.168.1.115:5000/uploads/${req.files.idCard[0].filename}`;
   const id_user = req.user.userId; // ใช้ `userId` จาก JWT token
 
   // 🔥 บันทึกลงฐานข้อมูล
@@ -360,6 +360,20 @@ app.post("/addwork", (req, res) => {
       }
       res.send({ message: "Work added successfully", workId: this.lastID });
     }
+  );
+});
+
+app.get("/getworks", (req, res) => {
+  db.all(
+      `SELECT id_work, name_work, price, Portfolio, description FROM Work`,
+      [],
+      (err, rows) => {
+          if (err) {
+              console.error("Error fetching works:", err);
+              return res.status(500).send({ message: "Error fetching works", error: err });
+          }
+          res.json(rows); // ส่งข้อมูลกลับไปยังฝั่งไคลเอนต์
+      }
   );
 });
 
