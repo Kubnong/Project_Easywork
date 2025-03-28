@@ -9,17 +9,13 @@ const app = express();
 
 const cors = require("cors");
 
-
 app.use(express.json());
-app.use(cors());  //ใช้ cors 
-
-
+app.use(cors()); //ใช้ cors
 
 const db = new sqlite3.Database("./userDB.db", (err) => {
   if (err) console.error(err.message);
   console.log("Connected to SQLite DB");
 });
-
 
 const fs = require("fs");
 const uploadDir = path.join(__dirname, "uploads");
@@ -27,8 +23,6 @@ const uploadDir = path.join(__dirname, "uploads");
 if (!fs.existsSync(uploadDir)) {
   fs.mkdirSync(uploadDir);
 }
-
-
 
 db.run(`CREATE TABLE IF NOT EXISTS Users(
     id_user INTEGER PRIMARY KEY AUTOINCREMENT,
@@ -59,8 +53,7 @@ db.run(`CREATE TABLE IF NOT EXISTS Freelance(
   FOREIGN KEY (id_verify) REFERENCES Verify(id_verify) ON DELETE CASCADE
 )`);
 
-db.run(`ALTER TABLE Freelance ADD COLUMN freelance_detail TEXT`)
-
+//db.run(`ALTER TABLE Freelance ADD COLUMN freelance_detail TEXT`);
 
 db.run(`CREATE TABLE IF NOT EXISTS Category(
     id_category INTEGER PRIMARY KEY AUTOINCREMENT,
@@ -185,7 +178,7 @@ app.post("/login", async (req, res) => {
 });
 
 ////////////////////
-// Profile 
+// Profile
 ////////////////////
 app.get("/profile/:userId", (req, res) => {
   const userId = req.params.userId;
@@ -237,37 +230,44 @@ const authenticateJWT = (req, res, next) => {
 };
 
 // ✅ API อัปโหลดรูปภาพและบันทึกลงฐานข้อมูล
-app.post("/upload", authenticateJWT, upload.fields([{ name: "selfie" }, { name: "idCard" }]), (req, res) => {
-  if (!req.files || !req.files.selfie || !req.files.idCard) {
-    return res.status(400).json({ error: "ต้องอัปโหลดรูปให้ครบทั้งสองรูป" });
-  }
+app.post(
+  "/upload",
+  authenticateJWT,
+  upload.fields([{ name: "selfie" }, { name: "idCard" }]),
+  (req, res) => {
+    if (!req.files || !req.files.selfie || !req.files.idCard) {
+      return res.status(400).json({ error: "ต้องอัปโหลดรูปให้ครบทั้งสองรูป" });
+    }
 
     // ตรวจสอบว่าไฟล์ selfie และ idCard ถูกอัปโหลดครบหรือไม่
     if (req.files.selfie.length === 0 || req.files.idCard.length === 0) {
-      return res.status(400).json({ error: "ต้องอัปโหลดรูปทั้งสองรูป: รูปเซลฟี่และบัตรประชาชน" });
+      return res
+        .status(400)
+        .json({ error: "ต้องอัปโหลดรูปทั้งสองรูป: รูปเซลฟี่และบัตรประชาชน" });
     }
 
-  const selfiePath = `http://172.20.10.7:5000/uploads/${req.files.selfie[0].filename}`;
-  const idCardPath = `http://172.20.10.7:5000/uploads/${req.files.idCard[0].filename}`;
-  const id_user = req.user.userId; // ใช้ `userId` จาก JWT token
+    const selfiePath = `http://10.34.108.186:5000/uploads/${req.files.selfie[0].filename}`;
+    const idCardPath = `http://10.34.108.186:5000/uploads/${req.files.idCard[0].filename}`;
+    const id_user = req.user.userId; // ใช้ `userId` จาก JWT token
 
-  // 🔥 บันทึกลงฐานข้อมูล
-  db.run(
-    `INSERT INTO Verify (selfie_with_id_card, id_card_image, id_user) VALUES (?, ?, ?)`,
-    [selfiePath, idCardPath, id_user],
-    function (err) {
-      if (err) {
-        return res.status(500).json({ error: err.message });
+    // 🔥 บันทึกลงฐานข้อมูล
+    db.run(
+      `INSERT INTO Verify (selfie_with_id_card, id_card_image, id_user) VALUES (?, ?, ?)`,
+      [selfiePath, idCardPath, id_user],
+      function (err) {
+        if (err) {
+          return res.status(500).json({ error: err.message });
+        }
+        res.json({
+          success: true,
+          selfieUrl: selfiePath,
+          idCardUrl: idCardPath,
+          id_verify: this.lastID, // คืนค่า id_verify ที่ถูกสร้าง
+        });
       }
-      res.json({
-        success: true,
-        selfieUrl: selfiePath,
-        idCardUrl: idCardPath,
-        id_verify: this.lastID, // คืนค่า id_verify ที่ถูกสร้าง
-      });
-    }
-  );
-});
+    );
+  }
+);
 
 /*
 // ลบข้อมูลทั้งหมดจากตาราง Category
@@ -303,13 +303,13 @@ db.run(`DELETE FROM Category`, function (err) {
     });
   });
 */
-app.get('/categories', (req, res) => {
+app.get("/categories", (req, res) => {
   db.all(`SELECT name_category FROM Category`, (err, rows) => {
-      if (err) {
-          res.status(500).json({ error: err.message });
-          return;
-      }
-      res.json(rows);
+    if (err) {
+      res.status(500).json({ error: err.message });
+      return;
+    }
+    res.json(rows);
   });
 });
 
@@ -318,26 +318,67 @@ app.post("/select", (req, res) => {
   console.log("Selected Category:", selectedcategory);
 
   db.all(
-    `SELECT TypeWork.name_typework
+    `SELECT TypeWork.id_typework,TypeWork.name_typework
     FROM TypeWork
     JOIN Category ON TypeWork.id_category = Category.id_category
-    WHERE Category.name_category = ?;`, [selectedcategory],
+    WHERE Category.name_category = ?;`,
+    [selectedcategory],
     (err, rows) => {
       if (err) {
         return res.status(500).send({ message: "Database error", error: err });
       }
       if (!rows || rows.length === 0) {
-        return res.status(400).send({ message: "No typework found for the selected category" });
+        return res
+          .status(400)
+          .send({ message: "No typework found for the selected category" });
       }
 
       // แปลงข้อมูลให้อยู่ในรูปแบบที่เหมาะสม
       const formattedData = rows.map((item) => ({
         label: item.name_typework,
-        value: item.name_typework,
+        value: item.id_typework,
       }));
 
       console.log("Formatted Data:", formattedData);
       res.send(formattedData);
+    }
+  );
+});
+
+app.post("/addwork", (req, res) => {
+  const {
+    name,
+    description,
+    price,
+    finishtime,
+    image,
+    selectedtypework,
+    userId,
+  } = req.body;
+
+  if (
+    !name ||
+    !description ||
+    !price ||
+    !finishtime ||
+    !selectedtypework ||
+    !userId
+  ) {
+    return res.status(400).send({ message: "กรุณากรอกข้อมูลให้ครบถ้วน" });
+  }
+
+  db.run(
+    `INSERT INTO Work (name_work, description, price, finish_time, Portfolio, id_typework, id_freelance)
+    VALUES (?, ?, ?, ?, ?, ?, ?)`,
+    [name, description, price, finishtime, image, selectedtypework, userId],
+    function (err) {
+      if (err) {
+        console.error("Error adding work:", err);
+        return res
+          .status(500)
+          .send({ message: "Error adding work", error: err });
+      }
+      res.send({ message: "Work added successfully", workId: this.lastID });
     }
   );
 });
