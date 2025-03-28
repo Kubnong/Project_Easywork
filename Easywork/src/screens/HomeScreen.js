@@ -3,9 +3,6 @@ import {View, StyleSheet, TextInput, Text, FlatList, TouchableOpacity, Image} fr
 import Feather from "@expo/vector-icons/Feather";
 import FunctionBar from "../components/FunctionBar.js";
 
-
-
-
 const categories = [
     { id: '1', name: 'แนะนำ'},
     { id: '2', name: 'ออกแบบกราฟิก'},
@@ -20,7 +17,7 @@ const worktype = [
     { id: '4', name: 'เขียนและออกแบบโครงสร้าง', category:'สถาปัตย์และวิศวกรรม', pic:'https://as2.ftcdn.net/jpg/00/81/89/57/1000_F_81895775_3lTXjWKjZtw4kx0kGpOrF33UmpQ6q50j.jpg'},
     { id: '5', name: 'แปลภาษา', category:'เขียนและแปลภาษา', pic:'https://play-lh.googleusercontent.com/C1y3UJXvJ36YgI1DiFbOm92YPJRQBgFjAeaBb5HNR5OCk_6rOHKnCOiUBCdDmCT1WpH-'},
 ]
-const HomeScreen = () => {
+const HomeScreen = ({navigation}) => {
     
     return(
         <View style={styles.container}>
@@ -33,7 +30,12 @@ const HomeScreen = () => {
                 />
             </View>
             <Text>หมวดหมู่ทั้งหมด</Text>
-           
+            <TouchableOpacity 
+                style={styles.test}
+                onPress={() => navigation.navigate("AddDetail")}
+            > 
+                <Text>Test Add Work</Text>
+            </TouchableOpacity>
             <View>
                 <FlatList
                     data={categories}
@@ -115,6 +117,15 @@ const styles = StyleSheet.create({
     worktypecontainer:{
         width: 190,
         height: 150,
+        backgroundColor: 'white',
+        borderColor: '#3674B5', 
+        borderWidth: 2, // เพิ่มระยะห่างด้านในของการ์ด
+        borderRadius: 10, // มุมของการ์ดโค้งมน 10 หน่วย
+        marginBottom:10
+    },
+    test:{
+        width: 100,
+        height: 30,
         backgroundColor: 'white',
         borderColor: '#3674B5', 
         borderWidth: 2, // เพิ่มระยะห่างด้านในของการ์ด

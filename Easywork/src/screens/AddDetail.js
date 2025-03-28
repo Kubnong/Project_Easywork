@@ -1,5 +1,5 @@
 import React, { useState , useEffect} from "react";
-import {View, StyleSheet, Text, Image, Alert} from "react-native";
+import {View, StyleSheet, Text, Image, Alert, ScrollView} from "react-native";
 import InputBox from "../components/InputBox";
 import CustomButton from "../components/CustomButton";
 import AntDesign from '@expo/vector-icons/AntDesign';
@@ -7,6 +7,8 @@ import DropDownPicker from "react-native-dropdown-picker";
 import * as ImagePicker from 'expo-image-picker';
 import { categories as fetchCategories } from "../services/api";
 import { selectType } from "../services/api";
+import { addWork } from "../services/api";
+import AsyncStorage from "@react-native-async-storage/async-storage";
 
 const AddDetail = () => {
     const [opencategory, setOpenCategory] = useState(false);
@@ -72,10 +74,10 @@ const AddDetail = () => {
     };
 
     const handleSelect = async () => {
+        if (!selectedcategory) {
+            return;
+        }
         try {
-            if (!selectedcategory) {
-                return;
-            }
             const data = await selectType(selectedcategory);
             console.log("Typework Data:", data); // ตรวจสอบข้อมูลที่ได้จาก API
             setTypeworks(data); // บันทึกข้อมูลที่ได้จาก API โดยตรง
@@ -87,7 +89,18 @@ const AddDetail = () => {
 
     const handleAddwork = async () => {
         try {
-            await addWork();
+            const userId = await AsyncStorage.getItem("userId")
+            if (!userId) {
+                Alert.alert("Error", "ไม่พบข้อมูลผู้ใช้ กรุณาล็อกอินใหม่");
+                return;
+            }
+
+            if (!name || !description || !price || !finishtime || !selectedtypework) {
+                Alert.alert("Error", "กรุณากรอกข้อมูลให้ครบถ้วน");
+                return;
+            }
+            console.log(name,description,price,finishtime,image,selectedtypework,userId)
+            await addWork(name,description,price,finishtime,image,selectedtypework,userId);
             Alert.alert("Addwork Successful");
         }
         catch (error) {
@@ -96,116 +109,124 @@ const AddDetail = () => {
     };
 
     return (
-        <View style={styles.container}>
-            <Text style={styles.textTitle}>หมวดหมู่ของงาน</Text>
-            <View style={styles.containerdropdown}>
-                <DropDownPicker
-                    open={opencategory}
-                    value={selectedcategory}
-                    items={categories}
-                    setOpen={setOpenCategory}
-                    setValue={setSelectedcategory}
-                    setItems={setCategories}
-                    placeholder="เลือกหมวดหมู่"
-                    style={[styles.dropdown, { zIndex: opencategory ? 1 : 0 }]}
-                    textStyle={styles.text}
-                    dropDownContainerStyle={styles.dropdownContainer}
-                    onOpen={() => setOpenTypework(false)}
-                    onChangeValue={handleSelect}
-                />
-            </View>
-            <Text style={styles.textTitle}>ประเภทของงาน</Text>
-            <View style={styles.containerdropdown}>
-                <DropDownPicker
-                    open={opentypework}
-                    value={selectedtypework}
-                    items={typeworks}
-                    setOpen={setOpenTypework}
-                    setValue={setSelectedtypework}
-                    setItems={setTypeworks}
-                    placeholder="เลือกประเภทงาน"
-                    style={[styles.dropdown, { zIndex: opencategory ? 1 : 0 }]}
-                    textStyle={styles.text}
-                    dropDownContainerStyle={styles.dropdownContainer}
-                    onOpen={() => setOpenCategory(false)}
-                />
-            </View>
-            <Text style={styles.textTitle}>ชื่องาน</Text>
-            <InputBox
-                placeholder={'ชื่องาน'}
-                width={370}
-                height={50}
-                value={name}
-                onChangeText={setName}
-            />
-            <Text style={styles.textTitle}>คำอธิบายงาน</Text>
-            <InputBox
-                placeholder={'คำอธิบายงาน'}
-                width={370}
-                height={50}
-                value={description}
-                onChangeText={setDescription}
-            />
-            <View style={{ flexDirection: 'row' }}>
-                <View>
-                    <Text style={styles.textTitle}>ราคางานของคุณ</Text>
-                    <InputBox
-                        placeholder={'ราคา'}
-                        width={180}
-                        height={40}
-                        value={price}
-                        onChangeText={(input) => handleTextChange(input, 'price')}
-                        keyboardType="numeric"
+        <ScrollView contentContainerStyle={styles.scrollContainer}>
+            <View style={styles.container}>
+                <Text style={styles.textTitle}>หมวดหมู่ของงาน</Text>
+                <View style={styles.containerdropdown}>
+                    <DropDownPicker
+                        open={opencategory}
+                        value={selectedcategory}
+                        items={categories}
+                        setOpen={setOpenCategory}
+                        setValue={setSelectedcategory}
+                        setItems={setCategories}
+                        placeholder="เลือกหมวดหมู่"
+                        style={[styles.dropdown, { zIndex: opencategory ? 1 : 0 }]}
+                        textStyle={styles.text}
+                        dropDownContainerStyle={styles.dropdownContainer}
+                        placeholderStyle={{fontSize:13,color:'grey'}}
+                        onOpen={() => setOpenTypework(false)}
+                        onChangeValue={handleSelect}
                     />
                 </View>
-                <View>
-                    <Text style={styles.textTitle}>ใช้เวลาทำ</Text>
-                    <InputBox
-                        placeholder={'เวลาที่ทำงาน'}
-                        width={171}
-                        height={40}
-                        value={finishtime}
-                        onChangeText={(input) => handleTextChange(input, 'finishtime')}
-                        keyboardType="numeric"
+                <Text style={styles.textTitle}>ประเภทของงาน</Text>
+                <View style={styles.containerdropdown}>
+                    <DropDownPicker
+                        open={opentypework}
+                        value={selectedtypework}
+                        items={typeworks}
+                        setOpen={setOpenTypework}
+                        setValue={setSelectedtypework}
+                        setItems={setTypeworks}
+                        placeholder="เลือกประเภทงาน"
+                        style={[styles.dropdown, { zIndex: opencategory ? 1 : 0 }]}
+                        textStyle={styles.text}
+                        dropDownContainerStyle={styles.dropdownContainer}
+                        placeholderStyle={{fontSize:13,color:'grey'}}
+                        onOpen={() => setOpenCategory(false)}
                     />
                 </View>
-            </View>
-            <View style={styles.imagecontainer}>
-                {image ? (
-                    <Image style={styles.image} source={{ uri: image }} />
-                ) : (
-                    <View style={styles.imageUploadContainer}>
-                        <AntDesign name="clouduploado" size={120} color="#1D6CE2"/>
-                        <Text style={styles.textimage}>
-                            อัปโหลดรูปผลงานในขนาด 16:9 ขนาดที่{"\n"}
-                            แนะนำ 1280*720px ไม่เกิน 10MB
-                        </Text>
-                    </View>
-                )}
-                <CustomButton
-                    iconPosition={'top'}
-                    title={'อัปโหลดภาพหน้าปก'}
-                    backgroundColor={'white'}
-                    borderColor={'grey'}
-                    color={'#1D6CE2'}
-                    width={250}
+                <Text style={styles.textTitle}>ชื่องาน</Text>
+                <InputBox
+                    placeholder={'ชื่องาน'}
+                    width={370}
                     height={50}
-                    borderRadius={5}
-                    onPress={pickImage} // ใช้ pickImage แทน
+                    value={name}
+                    onChangeText={setName}
+                />
+                <Text style={styles.textTitle}>คำอธิบายงาน</Text>
+                <InputBox
+                    placeholder={'คำอธิบายงาน'}
+                    width={370}
+                    height={50}
+                    value={description}
+                    onChangeText={setDescription}
+                />
+                <View style={{ flexDirection: 'row' }}>
+                    <View>
+                        <Text style={styles.textTitle}>ราคางานของคุณ</Text>
+                        <InputBox
+                            placeholder={'ราคา'}
+                            width={180}
+                            height={40}
+                            value={price}
+                            onChangeText={(input) => handleTextChange(input, 'price')}
+                            keyboardType="numeric"
+                        />
+                    </View>
+                    <View>
+                        <Text style={styles.textTitle}>ใช้เวลาทำ</Text>
+                        <InputBox
+                            placeholder={'เวลาที่ทำงาน'}
+                            width={171}
+                            height={40}
+                            value={finishtime}
+                            onChangeText={(input) => handleTextChange(input, 'finishtime')}
+                            keyboardType="numeric"
+                        />
+                    </View>
+                </View>
+                <View style={styles.imagecontainer}>
+                    {image ? (
+                        <Image style={styles.image} source={{ uri: image }} />
+                    ) : (
+                        <View style={styles.imageUploadContainer}>
+                            <AntDesign name="clouduploado" size={120} color="#1D6CE2"/>
+                            <Text style={styles.textimage}>
+                                อัปโหลดรูปผลงานในขนาด 16:9 ขนาดที่{"\n"}
+                                แนะนำ 1280*720px ไม่เกิน 10MB
+                            </Text>
+                        </View>
+                    )}
+                    <CustomButton
+                        iconPosition={'top'}
+                        title={'อัปโหลดภาพหน้าปก'}
+                        backgroundColor={'white'}
+                        borderColor={'grey'}
+                        color={'#1D6CE2'}
+                        width={250}
+                        height={50}
+                        borderRadius={5}
+                        onPress={pickImage} // ใช้ pickImage แทน
+                    />
+                </View>
+                <CustomButton
+                    title={'บันทึกข้อมูล'}
+                    backgroundColor={'#77D499'}
+                    color={'white'}
+                    width={370}
+                    height={50}
+                    onPress={handleAddwork}
                 />
             </View>
-            <CustomButton
-                title={'บันทึก'}
-                backgroundColor={'#77D499'}
-                color={'white'}
-                width={370}
-                height={50}
-                onPress={handleAddwork}
-            />
-        </View>
+        </ScrollView>
     );
 };
 const styles = StyleSheet.create({
+    scrollContainer: {
+        flexGrow: 1,
+        paddingBottom: 50, // เพิ่มพื้นที่ด้านล่าง
+    },
     container: {
         flex: 1,
         padding: 10,

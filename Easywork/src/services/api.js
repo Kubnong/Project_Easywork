@@ -1,6 +1,6 @@
 import axios from "axios";
 
-const API_URL = "http://172.20.10.7:5000";
+const API_URL = "http://10.34.108.186:5000";
 
 export const categories = async () => {
   try {
@@ -22,6 +22,25 @@ export const selectType = async (selectedcategory) => {
   catch (error){
     throw new Error(error.response?.data?.message || "Error select")
   }  
+};
+
+export const addWork = async (name, description, price, finishtime, image, selectedtypework, userId) => {
+  try {
+    console.log("Data sent to API:", { name, description, price, finishtime, image, selectedtypework, userId });
+    const response = await axios.post(`${API_URL}/addwork`, {
+      name,
+      description,
+      price,
+      finishtime,
+      image,
+      selectedtypework,
+      userId, // ส่ง userId ไปด้วย
+    });
+    return response.data;
+  } catch (error) {
+    console.error("Error in addWork API:", error.response?.data || error.message);
+    throw new Error(error.response?.data?.message || "Error adding work");
+  }
 };
 
 export const registerUser = async (
@@ -89,7 +108,7 @@ export const uploadImages = async (selfieUri, idCardUri, token) => {
     });
 
     // 🔥 ส่งรูปภาพไปที่ API พร้อม JWT token
-    const response = await axios.post("http://172.20.10.7:5000/upload", formData, {
+    const response = await axios.post("http://10.34.108.186:5000/upload", formData, {
       headers: {
         "Content-Type": "multipart/form-data",
         "Authorization": `Bearer ${token}`,  // ส่ง JWT token ไปใน Header
