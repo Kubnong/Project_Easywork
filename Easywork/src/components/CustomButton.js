@@ -1,12 +1,12 @@
 import React from "react";
 import { Text, StyleSheet, TouchableOpacity , View} from "react-native";
 
-const CustomButton = ({ title, onPress, backgroundColor ,  color , borderColor , width , height , borderRadius , icon , iconPosition}) => {
+const CustomButton = ({ title, onPress, backgroundColor ,  color , borderColor , width , height , borderRadius , icon , iconPosition , marginBottom}) => {
 
   return (
     
     <TouchableOpacity
-      style={[styles.Button, { backgroundColor:backgroundColor || "gold" , borderColor: borderColor || "white" , width:width || 331 , height:height || 45 , borderRadius: borderRadius || 20}]}
+      style={[styles.Button, { backgroundColor:backgroundColor || "gold" , borderColor: borderColor || "white" , width:width || 331 , height:height || 45 , borderRadius: borderRadius || 20 , marginBottom : marginBottom || 0}]}
       onPress={onPress}
     >
       {icon && iconPosition === 'top' && (

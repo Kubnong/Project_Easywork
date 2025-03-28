@@ -1,15 +1,21 @@
-import React from "react";
-import { View, Text, StyleSheet } from "react-native";
+import React , { useState }from "react";
+import { View, Text, StyleSheet , ScrollView } from "react-native";
 import CustomButton from "../components/CustomButton";
 import InputBox from "../components/InputBox";
 import Foundation from "@expo/vector-icons/Foundation";
-import AntDesign from "@expo/vector-icons/AntDesign";
-
+import CustomModal from "../components/CustomModal";
 
 const RegisFreelance = ({ navigation , route}) => {
   const { user } = route.params; // รับข้อมูล user ที่ส่งมาจากหน้า Profile
+  const [modalVisible, setModalVisible] = useState(false);
+
+  const handleClose = () => {
+    setModalVisible(false);
+  };
+
 
   return (
+    <ScrollView>
     <View style={styles.container}>
       <Text style={styles.Title}>Freelance</Text>
 
@@ -54,15 +60,22 @@ const RegisFreelance = ({ navigation , route}) => {
       />
 
       <CustomButton
-        title="บันทึก และไปต่อ"
+        title="บันทึก"
         color="white"
         backgroundColor="#77D499"
         borderColor="#77D499"
-        icon={<AntDesign name="arrowright" size={24} color="white" />}
-        iconPosition="right"
-        onPress={() => navigation.navigate("VerifyScreen")}
+        marginBottom={80}
+        onPress={() => setModalVisible(true)}
       />
+
+      <CustomModal
+                visible={modalVisible}
+                onClose={handleClose}
+                title="ยินดีด้วย คุณเปิดบัญชีฟรีแลนซ์สำเร็จแล้ว!"
+                message="พร้อมให้คุณสัมผัสประสบการณ์ ที่พร้อมเปลี่ยนไอเดียของคุณให้เป็นความจริง พร้อมสิทธิพิเศษของฟรีแลนซ์อีกมากมาย! "
+              />
     </View>
+    </ScrollView>
   );
 };
 
@@ -77,7 +90,7 @@ const styles = StyleSheet.create({
     fontSize: 36,
     fontWeight: "bold",
     color: "#77D499",
-    marginTop: -30,
+    marginTop: 20,
     marginLeft: -180,
     marginBottom: 20,
   },

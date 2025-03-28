@@ -122,7 +122,7 @@ const App = () => {
     <NavigationContainer>
       {userToken ? <MainStack /> : <AuthStack />}
 
-      {userToken && <FunctionBar />}
+      {userToken && userId && <FunctionBar />}
     </NavigationContainer>
   );
 };

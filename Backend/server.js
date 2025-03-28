@@ -247,8 +247,8 @@ app.post("/upload", authenticateJWT, upload.fields([{ name: "selfie" }, { name: 
       return res.status(400).json({ error: "ต้องอัปโหลดรูปทั้งสองรูป: รูปเซลฟี่และบัตรประชาชน" });
     }
 
-  const selfiePath = `http://10.34.108.186:5000/uploads/${req.files.selfie[0].filename}`;
-  const idCardPath = `http://10.34.108.186:5000/uploads/${req.files.idCard[0].filename}`;
+  const selfiePath = `http://172.20.10.7:5000/uploads/${req.files.selfie[0].filename}`;
+  const idCardPath = `http://172.20.10.7:5000/uploads/${req.files.idCard[0].filename}`;
   const id_user = req.user.userId; // ใช้ `userId` จาก JWT token
 
   // 🔥 บันทึกลงฐานข้อมูล
