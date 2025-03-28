@@ -1,5 +1,5 @@
 import React from "react";
-import {View, StyleSheet, TextInput, Text, FlatList, TouchableOpacity, Image} from "react-native";
+import {View, StyleSheet, TextInput, Text, FlatList, TouchableOpacity, Image  } from "react-native";
 import Feather from "@expo/vector-icons/Feather";
 import FunctionBar from "../components/FunctionBar.js";
 
@@ -21,15 +21,21 @@ const HomeScreen = ({navigation}) => {
     
     return(
         <View style={styles.container}>
+            <View style={{backgroundColor : "#7adf9f"}}>
             <Text style={styles.title}>ค้นหาฟรีแลนซ์ที่คุณสนใจ</Text>
             <View style={styles.searchContainer}>
-                <Feather name="search" size={26} color="#888" style={styles.icon}/>
+                <Feather name="search" size={26} color="#7E7E7E" style={styles.icon}/>
                 <TextInput
                     style = {styles.font}
                     placeholder="Search"
+                    placeholderTextColor="#7E7E7E"
                 />
             </View>
-            <Text>หมวดหมู่ทั้งหมด</Text>
+            </View>
+            <View>
+                
+            </View>
+            <Text style={[styles.font , {fontSize : 16 , marginLeft : 20 , fontWeight : "bold" , color: "#1c3d2f"}]}>หมวดหมู่ทั้งหมด</Text>
             <TouchableOpacity 
                 style={styles.test}
                 onPress={() => navigation.navigate("AddDetail")}
@@ -50,12 +56,12 @@ const HomeScreen = ({navigation}) => {
                     keyExtractor={(item) => item.id}
                     renderItem={({item}) => (
                         <TouchableOpacity style={styles.categoryItem}>
-                            <Text>{item.name}</Text>
+                            <Text style={{fontWeight : "bold" , color : "#1a3c30" }}>{item.name}</Text>
                         </TouchableOpacity>
                     )}
                 />
             </View>
-            <View style={{padding:10}}>
+            <View style={{padding:10 , marginTop :10 , marginBottom : 70 , flex : 1}}>
                 <FlatList
                     data={worktype}
                     keyExtractor={(item) => item.id}
@@ -67,25 +73,28 @@ const HomeScreen = ({navigation}) => {
                                 style={styles.tinyLogo}
                                 source={{ uri : item.pic}}
                             />
-                            <Text>{item.name}</Text>
+                            <Text style={{padding : 5}}>{item.name}</Text>
                         </TouchableOpacity>
                     )}
                 />
             </View>
-            <FunctionBar/>
+        
             
         </View>
+       
     )
 }
 const styles = StyleSheet.create({
     container:{
         flex: 1,
-        backgroundColor:'white'
+        backgroundColor:'white',
     },
     title:{
-        fontSize: 20,
+        fontSize: 22,
         fontWeight: 'bold',
-        color: '#77D499',
+        color: 'white',
+        marginLeft : 20,
+        marginTop : 10
     },
     searchContainer: {
         alignItems:'center',
@@ -99,21 +108,28 @@ const styles = StyleSheet.create({
     },
     font: {
         fontSize: 14,
-        fontWeight: 'bold',
-        color: 'white',
+        color: 'black',
     },
     categoryItem: {
         alignItems:'center',
         justifyContent:'center',
-        backgroundColor: 'white',
-        borderColor:'#77D499',
+        backgroundColor: '#9af8d3',
+        borderColor:'#77D499', //#77D499
         padding: 10,
         marginHorizontal: 5,
         borderWidth:3,
-        borderRadius: 5,
+        borderRadius: 20,
         marginTop:5,
         width:160,
-        height:60
+        height:60,
+        shadowColor: "black",
+        // เงาสำหรับ iOS
+        shadowColor: "black",
+        shadowOffset: { width: 0, height: 4 },
+        shadowOpacity: 0.3,
+        shadowRadius: 6,
+        // เงาสำหรับ Android
+        elevation: 8,
     },
     tinyLogo: {
         width: '100%',
@@ -121,13 +137,22 @@ const styles = StyleSheet.create({
         borderRadius:8
     },
     worktypecontainer:{
-        width: 190,
-        height: 150,
+        width: 180,
+        height: 180 ,
         backgroundColor: 'white',
-        borderColor: '#3674B5', 
+        borderColor: '#77D499', //#3674B5
         borderWidth: 2, // เพิ่มระยะห่างด้านในของการ์ด
-        borderRadius: 10, // มุมของการ์ดโค้งมน 10 หน่วย
-        marginBottom:10
+        borderRadius: 20, // มุมของการ์ดโค้งมน 10 หน่วย
+        marginBottom:10,
+        padding : 10,
+        shadowColor: "black",
+        // เงาสำหรับ iOS
+        shadowColor: "black",
+        shadowOffset: { width: 0, height: 4 },
+        shadowOpacity: 0.3,
+        shadowRadius: 6,
+        // เงาสำหรับ Android
+        elevation: 8,
     },
     test:{
         width: 100,
