@@ -95,7 +95,6 @@ const Verify = ({ navigation, route }) => {
         userId
       );
       navigation.navigate("RegisFreelanceScreen", { user });
-      Alert.alert("Addverify Successful");
     } catch (error) {
       Alert.alert("Addverify Failed", error.message);
     }

@@ -1,6 +1,6 @@
 import axios from "axios";
 
-const API_URL = "http://172.20.10.19:5000";
+const API_URL = "http://10.1.210.219:5000";
 
 export const categories = async () => {
   try {
@@ -122,9 +122,9 @@ export const addVerify = async (Name , Surname , Idcard , Birthdate , Address ,S
 };
 
 // สมัครฟรีแลนซ์
-export const getVerify = async () => {
+export const getVerify = async (userId) => {
   try {
-    const response = await fetch(`${API_URL}/getVerify`);
+    const response = await fetch(`${API_URL}/getVerify?userId=${userId}`);
     const data = await response.json();
     return data; // ส่งข้อมูลกลับ (เช่น { id_verify: 1 })
   } catch (error) {
@@ -137,21 +137,21 @@ export const getVerify = async () => {
 // สมัครฟรีแลนซ์
 export const saveFreelance = async (idVerify, aboutFreelance) => {
   try {
-    const response = await fetch(`${API_URL}/savefreelance`, {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-      },
-      body: JSON.stringify({
-        id_verify: idVerify, // ส่ง id_verify ที่ได้จาก getVerify
-        about_freelance: aboutFreelance, // ข้อมูลเกี่ยวกับฟรีแลนซ์ที่กรอก
-      }),
-    });
+      const response = await fetch(`${API_URL}/savefreelance`, {
+          method: "POST",
+          headers: {
+              "Content-Type": "application/json",
+          },
+          body: JSON.stringify({
+              id_verify: idVerify, // ส่ง id_verify ที่ได้จาก getVerify
+              about_freelance: aboutFreelance, // ข้อมูลเกี่ยวกับฟรีแลนซ์ที่กรอก
+          }),
+      });
 
-    const result = await response.json();
-    return result; // ส่งผลลัพธ์กลับมา (เช่น { success: true })
+      const result = await response.json();
+      return result; // ส่งผลลัพธ์กลับมา (เช่น { id_freelance: 1 })
   } catch (error) {
-    console.error("Error saving freelance data:", error);
-    throw error;
+      console.error("Error saving freelance data:", error);
+      throw error;
   }
 };

@@ -315,7 +315,7 @@ app.post("/addVerify", (req, res) => {
 
   db.run(
     `INSERT INTO Verify (name, lastname, id_card, birthday, address ,selfie_with_id_card, id_card_image , id_user)
-    VALUES (?, ?, ?, ?, ?, ?, ?)`,
+    VALUES (?, ?, ?, ?, ?, ?, ?, ?)`,
     [Name , Surname , Idcard , Birthdate , Address ,Selfieimage , image , userId],
     function (err) {
       if (err) {
@@ -328,21 +328,17 @@ app.post("/addVerify", (req, res) => {
 });
 
 app.get("/getVerify", (req, res) => {
-  db.all(
-    `SELECT id_verify FROM Verify WHERE id_user = ?`, // เลือกข้อมูลที่เกี่ยวข้องกับ id_user ที่ส่งมาจากฝั่งไคลเอนต์
-    [req.query.userId], // ใช้ query parameters เพื่อส่งค่า id_user มา
-    (err, rows) => {
+  const userId = req.query.userId;
+
+  db.get(`SELECT id_verify FROM Verify WHERE id_user = ?`, [userId], (err, row) => {
       if (err) {
-        console.error("Error fetching verify data:", err);
-        return res.status(500).send({ message: "Error fetching verify data", error: err });
+          return res.status(500).json({ error: "Database error" });
       }
-      if (rows.length > 0) {
-        res.json(rows[0]); // ส่ง id_verify กลับไปยังฝั่งไคลเอนต์
-      } else {
-        res.status(404).send({ message: "No verify data found for this user" });
+      if (!row) {
+          return res.status(404).json({ error: "No verification found" });
       }
-    }
-  );
+      res.json(row); // ส่งข้อมูล id_verify กลับไปยังฝั่งไคลเอนต์
+  });
 });
 
 
@@ -354,20 +350,20 @@ app.post("/savefreelance", (req, res) => {
 
   // ตรวจสอบว่ามีข้อมูลครบถ้วนหรือไม่
   if (!id_verify || !about_freelance) {
-    return res.status(400).send({ message: "Missing id_verify or about_freelance" });
+      return res.status(400).send({ message: "Missing id_verify or about_freelance" });
   }
 
   // คำสั่ง SQL เพื่อบันทึกข้อมูลฟรีแลนซ์ลงในฐานข้อมูล
   db.run(
-    `INSERT INTO Freelance (id_verify, about_freelance) VALUES (?, ?)`,
-    [id_verify, about_freelance], // ส่งค่าที่รับมาเป็นพารามิเตอร์
-    function (err) {
-      if (err) {
-        console.error("Error saving freelance data:", err);
-        return res.status(500).send({ message: "Error saving freelance data", error: err });
+      `INSERT INTO Freelance (id_verify, about_freelance) VALUES (?, ?)`,
+      [id_verify, about_freelance], // ส่งค่าที่รับมาเป็นพารามิเตอร์
+      function (err) {
+          if (err) {
+              console.error("Error saving freelance data:", err);
+              return res.status(500).send({ message: "Error saving freelance data", error: err });
+          }
+          res.status(201).send({ message: "Freelance data saved successfully", id_freelance: this.lastID });
       }
-      res.status(201).send({ message: "Freelance data saved successfully", id_freelance: this.lastID });
-    }
   );
 });
 

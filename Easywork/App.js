@@ -55,12 +55,12 @@ const App = () => {
         },
       }}
     >
-      <Stack.Screen name="HomeScreen" options={{ headerLeft: () => null }}>
+      <Stack.Screen name="HomeScreen" options={{ headerLeft: () => null , headerShown: false}}>
         {(props) => (
           <HomeScreen {...props} userId={userId} setUserToken={setUserToken} />
         )}
       </Stack.Screen>
-      <Stack.Screen name="Profile">
+      <Stack.Screen name="Profile" options={{ headerShown: false }}>
         {(props) => (
           <Profile {...props} userId={userId} setUserToken={setUserToken} />
         )}

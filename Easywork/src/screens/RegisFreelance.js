@@ -1,55 +1,76 @@
-import React, { useState } from "react";
+import React, { useState , useEffect } from "react";
 import { View, Text, StyleSheet, ScrollView } from "react-native";
 import CustomButton from "../components/CustomButton";
 import InputBox from "../components/InputBox";
 import Foundation from "@expo/vector-icons/Foundation";
 import CustomModal from "../components/CustomModal";
 import { getVerify } from "../services/api";
+import { saveFreelance } from "../services/api";
+import AsyncStorage from "@react-native-async-storage/async-storage";
 
 const RegisFreelance = ({ navigation, route }) => {
   const { user } = route.params; // รับข้อมูล user ที่ส่งมาจากหน้า Profile
   const [modalVisible, setModalVisible] = useState(false);
-  const [verify, setVerify] = useState(""); //เก็บข้อมูล verify
+  const [idVerify, setVerify] = useState(""); //เก็บข้อมูล verify
   const [aboutFreelance, setAboutFreelance] = useState("");
 
   useEffect(() => {
     const fetchVerify = async () => {
-      try {
-        const data = await getVerify(); // เรียกฟังก์ชัน getVerify
-        setVerify(data.id_verify); // เก็บ id_verify ที่ได้จากเซิร์ฟเวอร์
-      } catch (error) {
-        Alert.alert("Error", "ไม่สามารถดึงข้อมูล verify ได้");
-      }
+        try {
+            const userId = await AsyncStorage.getItem("userId"); // ดึง userId จาก AsyncStorage
+            if (userId) {
+                const data = await getVerify(userId); // เรียก API เพื่อดึงข้อมูล verify
+                console.log("Fetched id_verify:", data); // ตรวจสอบข้อมูลที่ได้จาก API
+                if (data && data.id_verify) {
+                    setVerify(data.id_verify); // เก็บ id_verify ใน state
+                } else {
+                    console.error("No id_verify found");
+                }
+            } else {
+                console.error("No userId found in AsyncStorage");
+            }
+        } catch (error) {
+            console.error("Error fetching verify data:", error);
+        }
     };
 
-    fetchVerify();
-  }, []);
+    fetchVerify(); // เรียกฟังก์ชัน async ภายใน useEffect
+}, []);
 
-  const handleSave = async () => {
-    try {
-      const result = await saveFreelance(verify, aboutFreelance); // ส่งข้อมูลไปที่เซิร์ฟเวอร์
-      if (!verify) {
-        Alert.alert("Error", "ไม่พบข้อมูลการยืนยันตัวตน กรุณาลองใหม่");
-        return;
+
+const handleSave = async () => {
+  try {
+      if (!idVerify) {
+          Alert.alert("Error", "ไม่พบข้อมูลการยืนยันตัวตน กรุณาลองใหม่");
+          return;
       }
 
-      if (!aboutFreelance) {
-        Alert.alert("Error", "กรุณากรอกข้อมูลให้ครบถ้วน");
-        return;
+      if (!aboutFreelance.trim()) {
+          Alert.alert("Error", "กรุณากรอกข้อมูลเกี่ยวกับฟรีแลนซ์");
+          return;
       }
-      if (result.success) {
-        setModalVisible(true); // แสดง Modal เมื่อบันทึกสำเร็จ
+
+      const result = await saveFreelance(idVerify, aboutFreelance); // ส่งข้อมูลไปที่เซิร์ฟเวอร์
+      console.log("Save result:", result); // ตรวจสอบผลลัพธ์จาก API
+
+      if (result && result.id_freelance) {
+          setModalVisible(true); // แสดง Modal เมื่อบันทึกสำเร็จ
       } else {
-        Alert.alert("Error", "ไม่สามารถบันทึกข้อมูลได้");
+          Alert.alert("Error", "ไม่สามารถบันทึกข้อมูลได้");
       }
-    } catch (error) {
+  } catch (error) {
       Alert.alert("Error", "เกิดข้อผิดพลาดในการบันทึกข้อมูล");
-    }
-  };
+      console.error("Error in handleSave:", error);
+  }
+};
 
   const handleClose = () => {
-    setModalVisible(false);
+    navigation.navigate("HomeScreen")
   };
+
+  const test = () => {
+    setModalVisible(true)
+  }
 
   return (
     <ScrollView>
