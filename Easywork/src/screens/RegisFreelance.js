@@ -54,6 +54,11 @@ const handleSave = async () => {
       console.log("Save result:", result); // ตรวจสอบผลลัพธ์จาก API
 
       if (result && result.id_freelance) {
+          // บันทึก id_freelance ลงใน AsyncStorage
+          await AsyncStorage.setItem("id_freelance", result.id_freelance.toString());
+          
+          console.log("✅ Stored id_freelance in AsyncStorage:", result.id_freelance);
+
           setModalVisible(true); // แสดง Modal เมื่อบันทึกสำเร็จ
       } else {
           Alert.alert("Error", "ไม่สามารถบันทึกข้อมูลได้");
@@ -64,13 +69,6 @@ const handleSave = async () => {
   }
 };
 
-  const handleClose = () => {
-    navigation.navigate("HomeScreen")
-  };
-
-  const test = () => {
-    setModalVisible(true)
-  }
 
   return (
     <ScrollView>

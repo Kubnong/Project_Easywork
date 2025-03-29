@@ -381,4 +381,18 @@ app.get("/getworks", (req, res) => {
   );
 });
 
+// เรียกรับค่า Freelance
+// สร้าง API ดึงข้อมูลผู้ใช้
+app.get("/api/getFreelance", (req, res) => { 
+  
+  db.all(`SELECT * FROM Freelance`, [userId] , (err, results) => { 
+    if (err) {
+      console.error("Error fetching Freelance:", err);
+      res.status(500).json({ error: "Database error" });
+    } else {
+      res.json(results);
+    }
+  });
+});
+
 app.listen(5000, () => console.log("Server running on port 5000"));

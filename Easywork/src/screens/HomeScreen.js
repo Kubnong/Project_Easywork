@@ -77,9 +77,10 @@ const HomeScreen = ({navigation}) => {
                         </TouchableOpacity>
                     )}
                 />
+                
             </View>
         
-            
+            <FunctionBar />
         </View>
        
     )

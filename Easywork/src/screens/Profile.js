@@ -19,12 +19,15 @@ import axios from "axios";
 const Profile = ({ navigation, setUserToken, userId }) => {
   const [user, setUser] = useState("");
   const [loading, setLoading] = useState(true);
+  const [userToken , setUsertoken] = useState("") 
 
   console.log("Received userId:", userId); // ตรวจสอบค่าของ userId ที่ได้รับ
 
   useEffect(() => {
     const fetchUserData = async () => {
       console.log("🟡 Fetching profile for userId:", userId); // Debug log
+      const userToken = await AsyncStorage.getItem("userToken");
+      setUsertoken(userToken)
 
       if (!userId) {
         console.warn("Skipping API call: userId is null or undefined");
@@ -34,7 +37,7 @@ const Profile = ({ navigation, setUserToken, userId }) => {
 
       try {
         const response = await axios.get(
-          `http://10.1.210.219:5000/profile/${userId}`
+          `http://192.168.0.16:5000/profile/${userId}`
         );
         setUser(response.data); // เก็บข้อมูลผู้ใช้ที่ดึงมา
       } catch (error) {
@@ -104,7 +107,7 @@ const Profile = ({ navigation, setUserToken, userId }) => {
           <FontAwesome5 name="credit-card" size={35} color="grey" />
           <Text style={[styles.font , { textAlignVertical: "center"}]}>สมัครเป็นฟรีแลนซ์</Text>
         </TouchableOpacity>
-        <TouchableOpacity style={styles.option}>
+        <TouchableOpacity style={styles.option} onPress={() => navigation.navigate("AccountInfoScreen" , {user})}>
           <Ionicons name="person" size={35} color="grey" />
           <View>
             <Text style={[styles.font, { marginLeft: 15 }]}>ข้อมูลบัญชี</Text>
@@ -113,7 +116,18 @@ const Profile = ({ navigation, setUserToken, userId }) => {
             </Text>
           </View>
         </TouchableOpacity>
-        <CustomButton title="Logout" backgroundColor="red" marginTop={"85%"} onPress={logout} />
+        <TouchableOpacity style={styles.option}>
+          <Ionicons name="book" size={35} color="grey" />
+          <View>
+            <Text style={[styles.font, { marginLeft: 15 }]}>เพิ่มงานของฉัน</Text>
+            <Text style={{ marginLeft: 15 , color: "#7E7E7E"}}>
+              เพิ่มรายละเอียดงาน
+            </Text>
+          </View>
+        </TouchableOpacity>
+        
+        
+        <CustomButton title="Logout" backgroundColor="red" marginTop={"75%"} onPress={logout} />
       </View>
       <FunctionBar />
     </View>
@@ -125,7 +139,6 @@ const styles = StyleSheet.create({
     backgroundColor: "#7adf9f",
   },
   headcontaienr: {
-    height: 80,
     flexDirection: "row",
     backgroundColor: "#7adf9f",
     padding: 10,
@@ -134,6 +147,7 @@ const styles = StyleSheet.create({
   optioncontainer: {
     backgroundColor: "white",
     height: "100%",
+    marginTop: 10,
     borderTopStartRadius : 20,
     borderTopEndRadius : 20,
     shadowColor: "black",
@@ -168,6 +182,7 @@ const styles = StyleSheet.create({
     fontSize: 24,
     fontWeight: "bold",
     color: "black",
+    marginTop: 45
   },
   font: {
     marginLeft: 10,
@@ -180,6 +195,7 @@ const styles = StyleSheet.create({
     height: 50,
     borderRadius: 75,
     marginRight: 10,
+    marginTop: 50
   },
 });
 export default Profile;

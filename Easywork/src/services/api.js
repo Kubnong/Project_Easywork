@@ -1,6 +1,6 @@
 import axios from "axios";
 
-const API_URL = "http://10.1.210.219:5000";
+const API_URL = "http://192.168.0.16:5000";
 
 export const categories = async () => {
   try {
@@ -153,5 +153,17 @@ export const saveFreelance = async (idVerify, aboutFreelance) => {
   } catch (error) {
       console.error("Error saving freelance data:", error);
       throw error;
+  }
+};
+
+// รับ freelance 
+export const getFreelance = async (userId) => {
+  try {
+    const response = await fetch(`${API_URL}/getFreelance=${userId}`);
+    const data = await response.json();
+    return data;
+  } catch (error) {
+    console.error("Error fetching users:", error);
+    return [];
   }
 };
