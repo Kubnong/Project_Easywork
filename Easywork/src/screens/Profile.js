@@ -34,7 +34,7 @@ const Profile = ({ navigation, setUserToken, userId }) => {
 
       try {
         const response = await axios.get(
-          `http://192.168.1.125:5000/profile/${userId}`
+          `http://172.20.10.19:5000/profile/${userId}`
         );
         setUser(response.data); // เก็บข้อมูลผู้ใช้ที่ดึงมา
       } catch (error) {
@@ -93,27 +93,27 @@ const Profile = ({ navigation, setUserToken, userId }) => {
           source={{
             uri:
               user.picture ||
-              "https://static.vecteezy.com/system/resources/previews/005/544/718/non_2x/profile-icon-design-free-vector.jpg",
+              "https://www.weact.org/wp-content/uploads/2016/10/Blank-profile.png",
           }}
           style={styles.profileImage}
         />
-        <Text style={styles.title}>ชื่อ : {user.username}</Text>
+        <Text style={styles.title}>{user.username}</Text>
       </View>
       <View style={styles.optioncontainer}>
-        <TouchableOpacity style={styles.option} onPress={() => navigation.navigate("VerifyScreen" , {user})}>
+        <TouchableOpacity style={[styles.option , {marginTop:15}]} onPress={() => navigation.navigate("VerifyScreen" , {user})}>
           <FontAwesome5 name="credit-card" size={35} color="grey" />
-          <Text style={styles.font}>สมัครเป็นฟรีแลนซ์</Text>
+          <Text style={[styles.font , { textAlignVertical: "center"}]}>สมัครเป็นฟรีแลนซ์</Text>
         </TouchableOpacity>
         <TouchableOpacity style={styles.option}>
           <Ionicons name="person" size={35} color="grey" />
           <View>
             <Text style={[styles.font, { marginLeft: 15 }]}>ข้อมูลบัญชี</Text>
-            <Text style={{ marginLeft: 15 }}>
+            <Text style={{ marginLeft: 15 , color: "#7E7E7E"}}>
               รายละเอียดบัญชี, ข้อมูลติดต่อ, รหัสผ่าน
             </Text>
           </View>
         </TouchableOpacity>
-        <CustomButton title="Logout" backgroundColor="red" onPress={logout} />
+        <CustomButton title="Logout" backgroundColor="red" marginTop={"85%"} onPress={logout} />
       </View>
       <FunctionBar />
     </View>
@@ -122,30 +122,56 @@ const Profile = ({ navigation, setUserToken, userId }) => {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: "white",
+    backgroundColor: "#7adf9f",
   },
   headcontaienr: {
     height: 80,
     flexDirection: "row",
-    backgroundColor: "#77D499",
+    backgroundColor: "#7adf9f",
     padding: 10,
     alignItems: "center",
   },
-  optioncontainer: {},
+  optioncontainer: {
+    backgroundColor: "white",
+    height: "100%",
+    borderTopStartRadius : 20,
+    borderTopEndRadius : 20,
+    shadowColor: "black",
+    // เงาสำหรับ iOS
+    shadowColor: "black",
+    shadowOffset: { width: 0, height: 4 },
+    shadowOpacity: 0.3,
+    shadowRadius: 6,
+    // เงาสำหรับ Android
+    elevation: 8,
+  },
   option: {
     flexDirection: "row",
-    borderColor: "grey",
-    borderWidth: 1,
-    padding: 10,
+    backgroundColor: "#aefcdd",
+    borderColor: "#7E7E7E",
+    borderWidth: 0.6,
+    padding: 15,
+    borderRadius: 20,
+    width: "90%",
+    alignSelf: "center",
+    marginVertical: 5,
+    shadowColor: "black",
+    // เงาสำหรับ iOS
+    shadowColor: "black",
+    shadowOffset: { width: 0, height: 4 },
+    shadowOpacity: 0.3,
+    shadowRadius: 6,
+    // เงาสำหรับ Android
+    elevation: 8,
   },
   title: {
-    fontSize: 20,
+    fontSize: 24,
     fontWeight: "bold",
     color: "black",
   },
   font: {
     marginLeft: 10,
-    fontSize: 14,
+    fontSize: 16,
     fontWeight: "bold",
     color: "black",
   },

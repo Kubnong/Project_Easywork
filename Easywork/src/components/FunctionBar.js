@@ -39,18 +39,21 @@ const styles = StyleSheet.create({
     functionContainer: {
         height:65,
         flexDirection: 'row',
-        backgroundColor: '#77D499',
+        backgroundColor: '#3a8464',
         justifyContent: 'space-around',
         position: "absolute",
         bottom: 0,
         left: 0,
         right: 0,
+        borderTopStartRadius : 30,
+        borderTopEndRadius : 30,
+        paddingTop: 5
     },
     fontfunction:{
         marginTop: 3,
         fontSize: 14,
         fontWeight: 'bold',
-        color: '#4D4C4C',
+        color: 'white',
     }
 })
 export default FunctionBar;

@@ -1,6 +1,6 @@
 import axios from "axios";
 
-const API_URL = "http://192.168.1.125:5000";
+const API_URL = "http://172.20.10.19:5000";
 
 export const categories = async () => {
   try {

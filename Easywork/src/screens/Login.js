@@ -57,7 +57,7 @@ const Login = ({ navigation, setUserToken, setUserId }) => {
       </Text>
       <View style={{ marginBottom: 20 }}>
         <InputBox
-          placeholder="Username"
+          placeholder="Username/Email"
           value={identifier}
           onChangeText={setIdentifier}
         />

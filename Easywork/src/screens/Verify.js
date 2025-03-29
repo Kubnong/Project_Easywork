@@ -59,9 +59,18 @@ const Verify = ({ navigation, route }) => {
       }
 
       if (
-        (!Name || !Surname || !Birthdate || !Address || !Idcard || !Selfieimage || !image)
+        !Name ||
+        !Surname ||
+        !Birthdate ||
+        !Address ||
+        !Idcard ||
+        !Selfieimage ||
+        !image
       ) {
-        Alert.alert("บันทึกข้อมูลการยืนยันตัวตนผิดพลาด", "กรุณากรอกข้อมูลให้ครบถ้วน");
+        Alert.alert(
+          "บันทึกข้อมูลการยืนยันตัวตนผิดพลาด",
+          "กรุณากรอกข้อมูลให้ครบถ้วน"
+        );
         return;
       }
 
@@ -132,7 +141,11 @@ const Verify = ({ navigation, route }) => {
           <Text style={styles.Text}>รูปเห็นบัตรประชาชน</Text>
           <Text style={styles.Text2}>เห็นรายละเอียดครบถ้วนชัดเจน</Text>
           <Image
-            source={Selfieimage ? { uri: Selfieimage } : require("../../assets/idcard.png")}
+            source={
+              Selfieimage
+                ? { uri: Selfieimage }
+                : require("../../assets/idcard.png")
+            }
             style={{
               width: 310,
               height: 150,
@@ -292,6 +305,15 @@ const styles = StyleSheet.create({
     height: "auto",
     marginVertical: 10,
     paddingVertical: 10,
+    shadowColor: "black",
+    backgroundColor: "#FFFFFF", //เพิ่มสีพื้นหลัง เพื่อความชัดของเงา
+    // เงาสำหรับ iOS
+    shadowColor: "black",
+    shadowOffset: { width: 0, height: 4 },
+    shadowOpacity: 0.3,
+    shadowRadius: 6,
+    // เงาสำหรับ Android
+    elevation: 8,
   },
 });
 

@@ -35,7 +35,7 @@ db.run(`CREATE TABLE IF NOT EXISTS Users(
     username TEXT UNIQUE,
     email TEXT UNIQUE,
     password TEXT,
-    picture TEXT DEFAULT 'https://static.vecteezy.com/system/resources/previews/005/544/718/non_2x/profile-icon-design-free-vector.jpg'
+    picture TEXT DEFAULT 'https://www.weact.org/wp-content/uploads/2016/10/Blank-profile.png'
   )`);
 
 db.run(`CREATE TABLE IF NOT EXISTS Verify(
@@ -129,9 +129,7 @@ app.post("/register", async (req, res) => {
 
       // ถ้าไม่มี picture ให้ใช้ default
       const profilePic =
-        picture ||
-        "https://static.vecteezy.com/system/resources/previews/005/544/718/non_2x/profile-icon-design-free-vector.jpg";
-
+        picture
       db.run(
         `INSERT INTO Users (username, email, password, picture) VALUES (?, ?, ?, ?)`,
         [username, email, encryptedPassword, profilePic],
@@ -316,15 +314,15 @@ app.post("/addVerify", (req, res) => {
   }
 
   db.run(
-    `INSERT INTO Verify (name, lastname, id_card, birthday, selfie_with_id_card, id_card_image , id_user)
+    `INSERT INTO Verify (name, lastname, id_card, birthday, address ,selfie_with_id_card, id_card_image , id_user)
     VALUES (?, ?, ?, ?, ?, ?, ?)`,
     [Name , Surname , Idcard , Birthdate , Address ,Selfieimage , image , userId],
     function (err) {
       if (err) {
         console.error("Error adding verify:", err);
-        return res.status(500).send({ message: "Error adding work", error: err });
+        return res.status(500).send({ message: "Error adding verify", error: err });
       }
-      res.send({ message: "Your verify added successfully", VerifyId: this.userId });
+      res.send({ message: "Your verify added successfully", VerifyId: this.lastID});
     }
   );
 });
