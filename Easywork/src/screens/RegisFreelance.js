@@ -56,7 +56,7 @@ const handleSave = async () => {
       if (result && result.id_freelance) {
           // บันทึก id_freelance ลงใน AsyncStorage
           await AsyncStorage.setItem("id_freelance", result.id_freelance.toString());
-          
+          const id_freelance = await AsyncStorage.getItem("id_freelance")
           console.log("✅ Stored id_freelance in AsyncStorage:", result.id_freelance);
 
           setModalVisible(true); // แสดง Modal เมื่อบันทึกสำเร็จ

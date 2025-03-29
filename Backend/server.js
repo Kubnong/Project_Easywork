@@ -285,16 +285,16 @@ app.post("/select", (req, res) => {
 });
 
 app.post("/addwork", (req, res) => {
-  const { name, description, price, finishtime, image, selectedtypework, userId } = req.body;
+  const { name, description, price, finishtime, image, selectedtypework, idFreelance } = req.body;
 
-  if (!name || !description || !price || !finishtime || !selectedtypework || !userId) {
+  if (!name || !description || !price || !finishtime || !selectedtypework || !idFreelance) {
     return res.status(400).send({ message: "กรุณากรอกข้อมูลให้ครบถ้วน" });
   }
 
   db.run(
     `INSERT INTO Work (name_work, description, price, finish_time, Portfolio, id_typework, id_freelance)
     VALUES (?, ?, ?, ?, ?, ?, ?)`,
-    [name, description, price, finishtime, image, selectedtypework, userId],
+    [name, description, price, finishtime, image, selectedtypework, idFreelance],
     function (err) {
       if (err) {
         console.error("Error adding work:", err);

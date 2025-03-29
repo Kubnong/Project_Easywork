@@ -89,9 +89,9 @@ const AddDetail = () => {
 
     const handleAddwork = async () => {
         try {
-            const userId = await AsyncStorage.getItem("userId")
-            if (!userId) {
-                Alert.alert("Error", "ไม่พบข้อมูลผู้ใช้ กรุณาล็อกอินใหม่");
+            const idFreelance = await AsyncStorage.getItem("id_freelance");
+            if (!idFreelance) {
+                Alert.alert("Error", "ไม่พบข้อมูลฟรีแลนซ์ ");
                 return;
             }
 
@@ -99,8 +99,8 @@ const AddDetail = () => {
                 Alert.alert("Error", "กรุณากรอกข้อมูลให้ครบถ้วน");
                 return;
             }
-            console.log(name,description,price,finishtime,image,selectedtypework,userId)
-            await addWork(name,description,price,finishtime,image,selectedtypework,userId);
+            console.log(name,description,price,finishtime,image,selectedtypework,idFreelance)
+            await addWork(name,description,price,finishtime,image,selectedtypework,idFreelance);
             Alert.alert("Addwork Successful");
         }
         catch (error) {
