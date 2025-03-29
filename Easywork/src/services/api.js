@@ -1,6 +1,6 @@
 import axios from "axios";
 
-const API_URL = "http://192.168.0.67:5000";
+const API_URL = "http://192.168.0.16:5000";
 
 
 export const categories = async () => {
@@ -156,15 +156,59 @@ export const saveFreelance = async (idVerify, aboutFreelance) => {
       throw error;
   }
 };
-
-// รับ freelance 
-export const getFreelance = async (userId) => {
+export const getFreelance = async (id_freelance) => {
   try {
-    const response = await fetch(`${API_URL}/getFreelance=${userId}`);
+    const response = await fetch(`${API_URL}/getFreelance?id_freelance=${id_freelance}`);
+    
+    if (!response.ok) {
+      throw new Error(`HTTP error! Status: ${response.status}`);
+    }
+
+    const text = await response.text();
+    console.log("Response text:", text);  // แสดงข้อความที่ได้รับจาก API
+    try {
+      const data = JSON.parse(text);
+      console.log("Parsed data:", data);  // ตรวจสอบว่า data ถูกต้องหรือไม่
+      return data; // ส่งข้อมูล Freelance กลับ
+    } catch (e) {
+      console.error("Response is not JSON:", text); // ถ้าไม่สามารถแปลงเป็น JSON ได้
+      throw new Error("Response is not JSON");
+    }
+  } catch (error) {
+    console.error("Error fetching freelance data:", error);
+    throw error;
+  }
+};
+
+
+
+// อัพเดทรายละเอียดบัญชี
+
+export const updateAccount = async (id_freelance, about_freelance, id_user, email, username, picture) => {
+  try {
+    const response = await fetch(`${API_URL}/updateAccount`, {
+      method: "PUT",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({
+        id_freelance,
+        about_freelance,
+        id_user,
+        email,
+        username,
+        picture,
+      }),
+    });
+
+    if (!response.ok) {
+      throw new Error(`HTTP error! Status: ${response.status}`);
+    }
+
     const data = await response.json();
     return data;
   } catch (error) {
-    console.error("Error fetching users:", error);
-    return [];
+    console.error("Error updating account:", error);
+    throw error;
   }
 };

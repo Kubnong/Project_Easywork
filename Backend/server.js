@@ -383,16 +383,61 @@ app.get("/getworks", (req, res) => {
 
 // เรียกรับค่า Freelance
 // สร้าง API ดึงข้อมูลผู้ใช้
-app.get("/api/getFreelance", (req, res) => { 
-  
-  db.all(`SELECT * FROM Freelance`, [userId] , (err, results) => { 
+app.get("/getFreelance", (req, res) => {
+  const { id_freelance } = req.query; // ใช้ req.query แทน req.body สำหรับ GET request
+
+  if (!id_freelance) {
+    return res.status(400).send({ message: "Missing id_freelance parameter" });
+  }
+
+  const query = `
+    SELECT Freelance.about_freelance, Users.username , Verify.id_verify , Users.picture
+    FROM Freelance
+    JOIN Verify ON Freelance.id_verify = Verify.id_verify
+    JOIN Users ON Verify.id_user = Users.id_user
+    WHERE Freelance.id_freelance = ?
+  `;
+
+  db.all(query, [id_freelance], (err, rows) => {
     if (err) {
-      console.error("Error fetching Freelance:", err);
-      res.status(500).json({ error: "Database error" });
-    } else {
-      res.json(results);
+      console.error("Error fetching freelance:", err);
+      return res.status(500).send({ message: "Error fetching freelance", error: err });
     }
+    res.json(rows); // ส่งข้อมูลกลับไปยังฝั่งไคลเอนต์
   });
 });
+
+
+
+// อัพเดทรายละเอียดบัญชี
+
+app.put("/updateAccount", (req, res) => {
+  const { id_freelance, about_freelance, id_user, email, username, picture } = req.body;
+
+  if (!id_freelance || !about_freelance || !id_user || !email || !username || !picture) {
+    return res.status(400).json({ error: "Missing required fields" });
+  }
+
+  const sql1 = `UPDATE Freelance SET about_freelance = ? WHERE id_freelance = ?`;
+  const sql2 = `UPDATE Users SET username = ?, email = ?, picture = ? WHERE id_user = ?`;
+
+  db.serialize(() => {
+    db.run(sql1, [about_freelance, id_freelance], function (err) {
+      if (err) {
+        console.error("Error updating Freelance:", err);
+        return res.status(500).json({ error: "Database error in Freelance" });
+      }
+    });
+
+    db.run(sql2, [username, email, picture, id_user], function (err) {
+      if (err) {
+        console.error("Error updating Users:", err);
+        return res.status(500).json({ error: "Database error in Users" });
+      }
+      res.json({ message: "Update successful", changes: this.changes });
+    });
+  });
+});
+
 
 app.listen(5000, () => console.log("Server running on port 5000"));
