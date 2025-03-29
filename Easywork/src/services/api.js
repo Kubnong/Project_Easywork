@@ -1,6 +1,6 @@
 import axios from "axios";
 
-const API_URL = "http://10.1.210.219:5000";
+const API_URL = "http://192.168.0.67:5000";
 
 export const categories = async () => {
   try {
@@ -24,9 +24,9 @@ export const selectType = async (selectedcategory) => {
   }  
 };
 
-export const addWork = async (name, description, price, finishtime, image, selectedtypework, userId) => {
+export const addWork = async (name, description, price, finishtime, image, selectedtypework, idFreelance) => {
   try {
-    console.log("Data sent to API:", { name, description, price, finishtime, image, selectedtypework, userId });
+    console.log("Data sent to API:", { name, description, price, finishtime, image, selectedtypework, idFreelance });
     const response = await axios.post(`${API_URL}/addwork`, {
       name,
       description,
@@ -34,7 +34,7 @@ export const addWork = async (name, description, price, finishtime, image, selec
       finishtime,
       image,
       selectedtypework,
-      userId, // ส่ง userId ไปด้วย
+      idFreelance, // ส่ง userId ไปด้วย
     });
     return response.data;
   } catch (error) {
