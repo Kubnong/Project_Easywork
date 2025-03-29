@@ -14,8 +14,7 @@ import WorkScreen from "./src/screens/WorkScreen";
 import EmploymentScreen from "./src/screens/EmploymenScreen";
 import LinearGradient from "react-native-linear-gradient";
 import AsyncStorage from "@react-native-async-storage/async-storage";
-import FunctionBar from "./src/components/FunctionBar";
-
+import AccountInfo from "./src/screens/AccountInfo";
 
 const Stack = createStackNavigator();
 
@@ -55,7 +54,10 @@ const App = () => {
         },
       }}
     >
-      <Stack.Screen name="HomeScreen" options={{ headerLeft: () => null , headerShown: false}}>
+      <Stack.Screen
+        name="HomeScreen"
+        options={{ headerLeft: () => null, headerShown: false }}
+      >
         {(props) => (
           <HomeScreen {...props} userId={userId} setUserToken={setUserToken} />
         )}
@@ -65,7 +67,12 @@ const App = () => {
           <Profile {...props} userId={userId} setUserToken={setUserToken} />
         )}
       </Stack.Screen>
-
+      <Stack.Screen name="AccountInfoScreen" component={AccountInfo}  options={{ headerShown: false }} />
+      <Stack.Screen
+        name="VerifyScreen"
+        component={Verify}
+        options={{ title: "ยืนยันตัวตน" }}
+      />
       <Stack.Screen
         name="RegisFreelanceScreen"
         component={RegisFreelance}
@@ -76,11 +83,6 @@ const App = () => {
       <Stack.Screen name="DetailScreen" component={DetailScreen} />
       <Stack.Screen name="WorkScreen" component={WorkScreen} />
       <Stack.Screen name="EmploymentScreen" component={EmploymentScreen} />
-      <Stack.Screen
-        name="VerifyScreen"
-        component={Verify}
-        options={{ title: "ยืนยันตัวตน" }}
-      />
     </Stack.Navigator>
   );
 
@@ -119,14 +121,9 @@ const App = () => {
     </Stack.Navigator>
   );
 
-
-
-
   return (
     <NavigationContainer>
       {userToken && userId ? <MainStack /> : <AuthStack />}
-
-      {userToken && userId && <FunctionBar />}
     </NavigationContainer>
   );
 };

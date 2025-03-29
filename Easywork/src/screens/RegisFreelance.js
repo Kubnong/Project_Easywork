@@ -69,13 +69,6 @@ const handleSave = async () => {
   }
 };
 
-  const handleClose = () => {
-    navigation.navigate("HomeScreen")
-  };
-
-  const test = () => {
-    setModalVisible(true)
-  }
 
   return (
     <ScrollView>
