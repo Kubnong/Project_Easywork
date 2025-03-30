@@ -1,5 +1,7 @@
 import axios from "axios";
+
 import { Alert } from "react-native";
+
 const API_URL = "http://192.168.0.16:5000";
 
 
@@ -182,6 +184,7 @@ export const getFreelance = async (id_freelance) => {
 
 
 
+
 // อัพเดทรายละเอียดบัญชี
 // api.js
 
@@ -210,6 +213,33 @@ export const updateAccount = async (id_freelance, about_freelance, id_user, emai
       },
     });
 
+
+
+
+// อัพเดทรายละเอียดบัญชี
+
+export const updateAccount = async (id_freelance, about_freelance, id_user, email, username, picture) => {
+  try {
+    const response = await fetch(`${API_URL}/updateAccount`, {
+      method: "PUT",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({
+        id_freelance,
+        about_freelance,
+        id_user,
+        email,
+        username,
+        picture,
+      }),
+    });
+
+    if (!response.ok) {
+      throw new Error(`HTTP error! Status: ${response.status}`);
+    }
+
+
     const data = await response.json();
     if (data.success) {
       return { success: true, message: "อัปเดตข้อมูลสำเร็จ" };
@@ -218,6 +248,8 @@ export const updateAccount = async (id_freelance, about_freelance, id_user, emai
     }
   } catch (error) {
     console.error("Error updating account:", error);
+
     return { success: false, message: "ไม่สามารถเชื่อมต่อกับเซิร์ฟเวอร์" };
+
   }
 };

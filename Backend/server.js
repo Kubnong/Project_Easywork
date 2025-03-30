@@ -391,7 +391,9 @@ app.get("/getFreelance", (req, res) => {
   }
 
   const query = `
+
     SELECT Freelance.about_freelance, Users.username , Verify.id_verify , Users.picture , Users.email
+
     FROM Freelance
     JOIN Verify ON Freelance.id_verify = Verify.id_verify
     JOIN Users ON Verify.id_user = Users.id_user

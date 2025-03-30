@@ -1,5 +1,7 @@
 import React, { useState, useEffect } from "react";
+
 import { View, StyleSheet, Text, TouchableOpacity, Image ,Alert } from "react-native";
+
 import CustomButton from "../components/CustomButton";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import InputBox from "../components/InputBox";
@@ -13,14 +15,17 @@ const AccountInfo = ({ navigation, route }) => {
   const [about_freelance, setAbout_freelance] = useState("");
   const [email, setEmail] = useState("");
   const [username, setUsername] = useState("");
+
   const [picture, setPicture] = useState(null);
   const [id_freelance, setIdFreelance] = useState(null);
   const [id_user, setIdUser] = useState(null);
+
 
   useEffect(() => {
     const fetchFreelance = async () => {
       try {
         const id_freelance = await AsyncStorage.getItem("id_freelance");
+
         const stored_id_freelance = await AsyncStorage.getItem("id_freelance");
         const stored_id_user = await AsyncStorage.getItem("id_user");
 
@@ -28,15 +33,18 @@ const AccountInfo = ({ navigation, route }) => {
         setIdUser(stored_id_user);
 
 
+
         const data = await getFreelance(id_freelance); // เรียก API เพื่อดึงข้อมูล
         console.log("Freelance data:", data); // ตรวจสอบข้อมูลที่ได้รับจาก API
 
         if (data && data.length > 0) {
+
           const freelanceInfo = data[0];
           setAbout_freelance(freelanceInfo.about_freelance || "");
           setEmail(freelanceInfo.email || "");
           setUsername(freelanceInfo.username || "");
           setPicture(freelanceInfo.picture || null);
+
         }
       } catch (error) {
         Alert.alert("Error", "ไม่สามารถดึงข้อมูลได้");
@@ -56,6 +64,7 @@ const AccountInfo = ({ navigation, route }) => {
       });
   
       console.log(result);
+
   
       if (!result.canceled) {
         setPicture(result.assets[0].uri);
@@ -82,6 +91,7 @@ const AccountInfo = ({ navigation, route }) => {
         Alert.alert("ข้อผิดพลาด", "ไม่สามารถอัปเดตข้อมูลได้");
       }
     };
+
 
   return (
     <View style={styles.container}>
@@ -123,7 +133,9 @@ const AccountInfo = ({ navigation, route }) => {
 
           <Text style={[styles.font]}>ชื่อผู้ใช้ (username)</Text>
           <InputBox
+
             placeholder={username || "ไม่พบข้อมูล"}
+
             borderColor="#D5D5D5"
             width={320}
             height={40}
@@ -132,7 +144,9 @@ const AccountInfo = ({ navigation, route }) => {
 
           <Text style={[styles.font]}>อีเมล (email)</Text>
           <InputBox
+
             placeholder={email || "ไม่พบข้อมูล"}
+
             borderColor="#D5D5D5"
             width={320}
             height={40}
@@ -141,7 +155,9 @@ const AccountInfo = ({ navigation, route }) => {
 
           <Text style={[styles.font]}>คำอธิบายฟรีแลนซ์</Text>
           <InputBox
+
             placeholder={about_freelance || "ไม่พบข้อมูล"}
+
             borderColor="#D5D5D5"
             width={320}
             height={"auto"}
@@ -157,7 +173,9 @@ const AccountInfo = ({ navigation, route }) => {
           width={290}
           marginTop={20}
           marginBottom={80}
+
           onPress={handleUpdate}
+
         />
       </View>
     </View>
