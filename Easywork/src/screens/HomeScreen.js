@@ -8,12 +8,27 @@ import { getTypeWork } from "../services/api.js";
 const HomeScreen = ({navigation}) => {
     const [categoriesData, setCategories] = useState([]); // เก็บข้อมูล categories
     const [typeworkData, setTypeWork] = useState([]); // เก็บข้อมูล typework
-    
+    const [searchCategory, setSearchCategory] = useState("");
+    const [searchText, setSearchText] = useState("");
+
+    const filteredResults = typeworkData.filter((typework) => {
+        const matchesSearchText = searchText
+            ? typework.name_typework && typework.name_typework.toLowerCase().includes(searchText.toLowerCase())
+            : true; // ถ้า searchText ว่าง ให้ผ่านเงื่อนไขนี้
+        const matchesCategory = searchCategory
+            ? typework.id_category && typework.id_category === searchCategory
+            : true; // ถ้า searchCategory ว่าง ให้ผ่านเงื่อนไขนี้
+        return matchesSearchText && matchesCategory; // ต้องตรงทั้งสองเงื่อนไข
+    });
+
     useEffect(() => {
         const fetchData = async () => {
             try {
                 const dataCategories = await categories(); // ดึงข้อมูล categories
                 const dataTypework = await getTypeWork(); // ดึงข้อมูล typework
+                console.log("Fetched categoriesData:", dataCategories);
+                console.log("--------------------------")
+                console.log("Fetched typeworkData:", dataTypework);
                 setCategories(dataCategories); // เก็บ categories ใน state
                 setTypeWork(dataTypework); // เก็บ typework ใน state
             } catch (error) {
@@ -22,7 +37,6 @@ const HomeScreen = ({navigation}) => {
                 setLoading(false); // ปิดสถานะการโหลด
             }
         };
-
         fetchData();
     }, []);
 
@@ -36,6 +50,7 @@ const HomeScreen = ({navigation}) => {
                         style = {styles.font}
                         placeholder="Search"
                         placeholderTextColor="#7E7E7E"
+                        onChangeText={setSearchText}
                     />
                 </View>
             </View>
@@ -57,17 +72,20 @@ const HomeScreen = ({navigation}) => {
                     data={categoriesData}
                     horizontal={true}
                     showsHorizontalScrollIndicator={false}
-                    keyExtractor={(item, index) => `${item.id}-${index}`}
+                    keyExtractor={(item, index) => `${item.id_category}-${index}`}
                     renderItem={({item}) => (
-                        <TouchableOpacity style={styles.categoryItem}>
-                            <Text style={{fontWeight : "bold" , color : "#1a3c30" }}>{item.name}</Text>
+                        <TouchableOpacity 
+                            style={styles.categoryItem}
+                            onPress={() => setSearchCategory(item.id_category === searchCategory ? "" : item.id_category)}
+                        >
+                            <Text style={{fontWeight : "bold" , color : "#1a3c30" }}>{item.name_category}</Text>
                         </TouchableOpacity>
                     )}
                 />
             </View>
             <View style={{padding:10 , marginTop :10 , marginBottom : 70 , flex : 1}}>
                 <FlatList
-                    data={typeworkData}
+                    data={filteredResults}
                     keyExtractor={(item, index) => `${item.id}-${index}`}
                     numColumns={2}
                     columnWrapperStyle={{justifyContent: 'space-between'}}

@@ -246,7 +246,7 @@ db.run(`DELETE FROM Category`, function (err) {
   });
 */
 app.get("/categories", (req, res) => {
-  const sql = `SELECT id_category A, name_category AS name FROM Category`;
+  const sql = `SELECT id_category , name_category  FROM Category`;
   db.all(sql, [], (err, rows) => {
     if (err) {
       console.error("Error fetching categories:", err);
