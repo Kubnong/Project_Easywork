@@ -69,6 +69,10 @@ const handleSave = async () => {
   }
 };
 
+const handleClose = () => {
+  setModalVisible(false);
+  navigation.navigate("HomeScreen" )
+};
 
   return (
     <ScrollView>
@@ -111,7 +115,7 @@ const handleSave = async () => {
         <InputBox
           placeholder="อธิบายเกี่ยวกับจุดแข็งของคุณโดยสังเขปเพื่อให้ผู้ว่าจ้างใช้ประกอบการพิจารณา"
           borderColor="#D5D5D5"
-          height={175}
+          height={"auto"}
           multiline={true}
           marginBottom={25}
           onChangeText={setAboutFreelance}
