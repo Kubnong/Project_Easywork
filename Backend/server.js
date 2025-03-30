@@ -247,13 +247,25 @@ db.run(`DELETE FROM Category`, function (err) {
     });
   });
 */
-app.get('/categories', (req, res) => {
-  db.all(`SELECT name_category FROM Category`, (err, rows) => {
+app.get("/categories", (req, res) => {
+  const sql = `SELECT id_category , name_category  FROM Category`;
+  db.all(sql, [], (err, rows) => {
+    if (err) {
+      console.error("Error fetching categories:", err);
+      return res.status(500).json({ error: "Database error" });
+    }
+    res.json(rows); // ส่งข้อมูล categories กลับไปยังฝั่งไคลเอนต์
+  });
+});
+
+app.get("/typework", (req, res) => {
+  const sql = `SELECT id_typework, id_category, name_typework FROM TypeWork`;
+  db.all(sql, [], (err, rows) => {
       if (err) {
-          res.status(500).json({ error: err.message });
-          return;
+          console.error("Error fetching typework:", err);
+          return res.status(500).json({ error: "Database error" });
       }
-      res.json(rows);
+      res.json(rows); // ส่งข้อมูล typework กลับไปยังฝั่งไคลเอนต์
   });
 });
 
@@ -343,8 +355,6 @@ app.get("/getVerify", (req, res) => {
   });
 });
 
-
-
 // บันทึกข้อมูลการสมัครฟรีแลนซ์
 
 app.post("/savefreelance", (req, res) => {
@@ -371,7 +381,11 @@ app.post("/savefreelance", (req, res) => {
 
 app.get("/getworks", (req, res) => {
   db.all(
-      `SELECT id_work, name_work, price, Portfolio, description FROM Work`,
+      `SELECT Freelance.id_freelance, Freelance.about_freelance, Users.username, Users.picture, Work.id_work, Work.name_work, Work.price, Work.Portfolio, Work.description
+      FROM Work
+      JOIN Freelance ON Work.id_freelance = Freelance.id_freelance
+      JOIN Verify ON Freelance.id_verify = Verify.id_verify
+      JOIN Users ON Verify.id_user = Users.id_user;`,
       [],
       (err, rows) => {
           if (err) {
@@ -413,6 +427,45 @@ app.get("/getFreelance", (req, res) => {
 
 
 
+app.post("/addEmployment", (req, res) => {
+  const { storedUserId, id_freelance, id_work } = req.body;
+
+  if (!storedUserId || !id_freelance || !id_work) {
+    return res.status(400).send({ message: "กรุณากรอกข้อมูลให้ครบถ้วน" });
+  }
+  
+  db.run(
+    `INSERT INTO Employment (id_user, id_freelance, id_work)
+    VALUES (?, ?, ?)`, [storedUserId, id_freelance, id_work],
+    function (err) {
+      if (err) {
+        console.error("Error adding employment:", err);
+        return res.status(500).send({ message: "Error adding employment", error: err });
+      }
+      res.send({ message: "Work added successfully"});
+    }
+  )
+})
+
+app.post("/getEmployment", (req,res) => {
+  const { storedUserId } = req.body
+
+  db.all(
+    `SELECT Work.id_work, Work.name_work, Work.description, Work.price, Work.Portfolio
+    FROM Employment
+    JOIN Work ON Employment.id_work = Work.id_work
+    WHERE Employment.id_user = ?`, [storedUserId],(err, rows) => {
+      if (err) {
+        console.error("Error fetching employment details:", err);
+        return res.status(500).send({ message: "Database error", error: err });
+      }
+      res.json(rows)
+    });
+});
+
+
+
+
 // อัพเดทรายละเอียดบัญชี
 app.post('/updateAccount', (req, res) => {
   const { id_freelance, about_freelance, id_user, email, username, picture } = req.body;
@@ -447,6 +500,7 @@ app.post('/updateAccount', (req, res) => {
     }
   );
 });
+
 
 
 app.listen(5000, () => console.log("Server running on port 5000"));
