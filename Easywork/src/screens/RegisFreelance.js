@@ -13,11 +13,7 @@ const RegisFreelance = ({ navigation, route }) => {
   const [modalVisible, setModalVisible] = useState(false);
   const [idVerify, setVerify] = useState(""); //เก็บข้อมูล verify
   const [aboutFreelance, setAboutFreelance] = useState("");
-  const handleClose = () => {
-    setModalVisible(false);
-    navigation.navigate("HomeScreen" )
-  };
-  
+
   useEffect(() => {
     const fetchVerify = async () => {
         try {
