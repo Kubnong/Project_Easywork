@@ -2,16 +2,33 @@ import React , {useState} from "react";
 import {View , Text , Image , StyleSheet, ScrollView} from "react-native";
 import CustomButton from "../components/CustomButton";
 import Ionicons from '@expo/vector-icons/Ionicons';
+import AsyncStorage from "@react-native-async-storage/async-storage";
 import CustomModal from "../components/CustomModal";
+import { addEmployment } from "../services/api";
 
 const DetailScreen = ({route,navigation}) => {
-    const {image, title, price, description, about_freelance, username, user_picture} = route.params;
+    const {id_work, id_freelance, image, title, price, description, about_freelance, username, user_picture} = route.params;
     const [modalVisible, setModalVisible] = useState(false);
     
     const handleClose = () => {
         setModalVisible(false);
     };
-    
+    const handleEmployment = async () => {
+        try {
+            const storedUserId = await AsyncStorage.getItem("userId");
+            console.log(id_freelance,storedUserId,id_work)
+            await addEmployment(storedUserId,id_freelance,id_work)
+        } catch (error) {
+            Alert.alert("Error", "Something went wrong!");
+            console.error("Error in employment process:", error);
+        }
+    };
+
+    const handlePress = () => {
+        setModalVisible(true); // เปิด Modal
+        handleEmployment(); // เรียกฟังก์ชัน handleEmployment
+    };
+
     return(
         <ScrollView contentContainerStyle={styles.scrollContainer}>
             <View style={styles.container}>
@@ -54,7 +71,7 @@ const DetailScreen = ({route,navigation}) => {
                         color={"white"}
                         width={370}
                         height={60}
-                        onPress={() => setModalVisible(true)}
+                        onPress={handlePress}
                     />
                     <CustomModal
                         visible={modalVisible}

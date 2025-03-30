@@ -32,6 +32,8 @@ const WorkScreen = (navigation) => {
                     keyExtractor={(item) => item.id_work.toString()} // ใช้ id_work เป็น key
                     renderItem={({ item }) => (
                         <WorkCard
+                            id_work={item.id_work}
+                            id_freelance={item.id_freelance}
                             image={item.Portfolio} // ส่งรูปภาพ
                             title={item.name_work} // ส่งชื่องาน
                             price={item.price} // ส่งราคา
@@ -39,6 +41,7 @@ const WorkScreen = (navigation) => {
                             about_freelance={item.about_freelance}
                             username={item.username}
                             user_picture={item.picture}
+                            onPress={true}
                         />
                     )}
                 />

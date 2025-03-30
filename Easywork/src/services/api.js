@@ -180,3 +180,28 @@ export const getFreelance = async (userId) => {
     return [];
   }
 };
+
+export const addEmployment = async (storedUserId,id_freelance,id_work) => {
+  try {
+    console.log("Data sent to API:", {storedUserId,id_freelance,id_work});
+    const response = await axios.post(`${API_URL}/addEmployment`, {
+      storedUserId,
+      id_freelance,
+      id_work,
+    });
+    return response.data;
+  } catch (error) {
+    console.error("Error fetching Add Employment:", error);
+    return [];
+  }
+};
+
+export const getEmployment = async (storedUserId) => {
+  try {
+    const response = await axios.post(`${API_URL}/getEmployment`, {storedUserId});
+    return response.data;
+  } catch (error) {
+    console.error("Error fetching Add Employment:", error);
+    return [];
+  }
+};

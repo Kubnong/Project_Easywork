@@ -353,8 +353,6 @@ app.get("/getVerify", (req, res) => {
   });
 });
 
-
-
 // บันทึกข้อมูลการสมัครฟรีแลนซ์
 
 app.post("/savefreelance", (req, res) => {
@@ -381,7 +379,7 @@ app.post("/savefreelance", (req, res) => {
 
 app.get("/getworks", (req, res) => {
   db.all(
-      `SELECT Freelance.about_freelance, Users.username, Users.picture, Work.id_work, Work.name_work, Work.price, Work.Portfolio, Work.description
+      `SELECT Freelance.id_freelance, Freelance.about_freelance, Users.username, Users.picture, Work.id_work, Work.name_work, Work.price, Work.Portfolio, Work.description
       FROM Work
       JOIN Freelance ON Work.id_freelance = Freelance.id_freelance
       JOIN Verify ON Freelance.id_verify = Verify.id_verify
@@ -400,7 +398,6 @@ app.get("/getworks", (req, res) => {
 // เรียกรับค่า Freelance
 // สร้าง API ดึงข้อมูลผู้ใช้
 app.get("/api/getFreelance", (req, res) => { 
-  
   db.all(`SELECT * FROM Freelance`, [userId] , (err, results) => { 
     if (err) {
       console.error("Error fetching Freelance:", err);
@@ -409,6 +406,42 @@ app.get("/api/getFreelance", (req, res) => {
       res.json(results);
     }
   });
+});
+
+app.post("/addEmployment", (req, res) => {
+  const { storedUserId, id_freelance, id_work } = req.body;
+
+  if (!storedUserId || !id_freelance || !id_work) {
+    return res.status(400).send({ message: "กรุณากรอกข้อมูลให้ครบถ้วน" });
+  }
+  
+  db.run(
+    `INSERT INTO Employment (id_user, id_freelance, id_work)
+    VALUES (?, ?, ?)`, [storedUserId, id_freelance, id_work],
+    function (err) {
+      if (err) {
+        console.error("Error adding employment:", err);
+        return res.status(500).send({ message: "Error adding employment", error: err });
+      }
+      res.send({ message: "Work added successfully"});
+    }
+  )
+})
+
+app.post("/getEmployment", (req,res) => {
+  const { storedUserId } = req.body
+
+  db.all(
+    `SELECT Work.id_work, Work.name_work, Work.description, Work.price, Work.Portfolio
+    FROM Employment
+    JOIN Work ON Employment.id_work = Work.id_work
+    WHERE Employment.id_user = ?`, [storedUserId],(err, rows) => {
+      if (err) {
+        console.error("Error fetching employment details:", err);
+        return res.status(500).send({ message: "Database error", error: err });
+      }
+      res.json(rows)
+    });
 });
 
 app.listen(5000, () => console.log("Server running on port 5000"));

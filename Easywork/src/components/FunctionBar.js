@@ -20,7 +20,7 @@ const FunctionBar = () => {
             </TouchableOpacity>
             <TouchableOpacity 
                 style={{alignItems:'center',justifyContent:'center'}}
-                onPress={() => navigation.navigate("Profile")}
+                onPress={() => navigation.navigate("EmploymentScreen")}
             >
                 <Entypo name="briefcase" size={30} color="white" />
                 <Text style={styles.fontfunction}>การจ้างงาน</Text>

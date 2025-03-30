@@ -26,9 +26,6 @@ const HomeScreen = ({navigation}) => {
             try {
                 const dataCategories = await categories(); // ดึงข้อมูล categories
                 const dataTypework = await getTypeWork(); // ดึงข้อมูล typework
-                console.log("Fetched categoriesData:", dataCategories);
-                console.log("--------------------------")
-                console.log("Fetched typeworkData:", dataTypework);
                 setCategories(dataCategories); // เก็บ categories ใน state
                 setTypeWork(dataTypework); // เก็บ typework ใน state
             } catch (error) {

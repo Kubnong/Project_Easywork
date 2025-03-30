@@ -82,7 +82,7 @@ const App = () => {
       <Stack.Screen name="AddDetail" component={AddDetail} />
       <Stack.Screen name="DetailScreen" component={DetailScreen} />
       <Stack.Screen name="WorkScreen" component={WorkScreen} />
-      <Stack.Screen name="EmploymentScreen" component={EmploymentScreen} />
+      <Stack.Screen name="EmploymentScreen" component={EmploymentScreen} options={{headerLeft: () => null}}/>
     </Stack.Navigator>
   );
 
