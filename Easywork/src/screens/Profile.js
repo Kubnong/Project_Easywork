@@ -138,6 +138,7 @@ const Profile = ({ navigation, setUserToken, userId }) => {
         <CustomButton
           title="Logout"
           backgroundColor="red"
+          color="white"
           marginTop={"75%"}
           onPress={logout}
         />

@@ -65,32 +65,35 @@ const App = () => {
             fontWeight: "bold",
             color: "white",
           },
+          animationEnabled: false, // ปิด animation เวลากดเปลี่ยนหน้า
+          tabBarOptions: {
+            animationEnabled: false, // ปิด animation เวลากดเปลี่ยน Tab
+          },
         }}
       >
-        
-          <Stack.Screen
-            name="StartScreen"
-            component={StartScreen}
-            options={{ headerLeft: () => null }}
-          />
-          <Stack.Screen
-            name="RegisterScreen"
-            component={Register}
-            options={{ title: "สมัครสมาชิก" }}
-          />
-          <Stack.Screen
-            name="LoginScreen"
-            options={{ title: "เข้าสู่ระบบ", headerLeft: () => null }}
-          >
-            {(props) => (
-              <Login
-                {...props}
-                setUserToken={setUserToken}
-                setUserId={setUserId}
-              />
-            )}
-          </Stack.Screen>
-       
+        <Stack.Screen
+          name="StartScreen"
+          component={StartScreen}
+          options={{ headerLeft: () => null }}
+        />
+        <Stack.Screen
+          name="RegisterScreen"
+          component={Register}
+          options={{ title: "สมัครสมาชิก" }}
+        />
+        <Stack.Screen
+          name="LoginScreen"
+          options={{ title: "เข้าสู่ระบบ", headerLeft: () => null }}
+        >
+          {(props) => (
+            <Login
+              {...props}
+              setUserToken={setUserToken}
+              setUserId={setUserId}
+            />
+          )}
+        </Stack.Screen>
+
         <Stack.Screen
           name="HomeScreen"
           options={{ headerLeft: () => null, headerShown: false }}
