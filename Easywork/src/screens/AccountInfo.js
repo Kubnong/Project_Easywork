@@ -1,11 +1,17 @@
 import React, { useState, useEffect } from "react";
-
-import { View, StyleSheet, Text, TouchableOpacity, Image ,Alert } from "react-native";
-
+import {
+  View,
+  StyleSheet,
+  Text,
+  TouchableOpacity,
+  Image,
+  Alert,
+} from "react-native";
+import Ionicons from "@expo/vector-icons/Ionicons";
 import CustomButton from "../components/CustomButton";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import InputBox from "../components/InputBox";
-import { getFreelance } from "../services/api";
+import { getFreelance, updateAccount } from "../services/api";
 import * as ImagePicker from "expo-image-picker";
 
 const AccountInfo = ({ navigation, route }) => {
@@ -16,10 +22,9 @@ const AccountInfo = ({ navigation, route }) => {
   const [email, setEmail] = useState("");
   const [username, setUsername] = useState("");
 
-  const [picture, setPicture] = useState(null);
+  const [picture, setPicture] = useState("");
   const [id_freelance, setIdFreelance] = useState(null);
-  const [id_user, setIdUser] = useState(null);
-
+  const [id_user, setIdUser] = useState("");
 
   useEffect(() => {
     const fetchFreelance = async () => {
@@ -27,24 +32,20 @@ const AccountInfo = ({ navigation, route }) => {
         const id_freelance = await AsyncStorage.getItem("id_freelance");
 
         const stored_id_freelance = await AsyncStorage.getItem("id_freelance");
-        const stored_id_user = await AsyncStorage.getItem("id_user");
+        const stored_id_user = await AsyncStorage.getItem("userId");
 
         setIdFreelance(stored_id_freelance);
         setIdUser(stored_id_user);
-
-
 
         const data = await getFreelance(id_freelance); // เรียก API เพื่อดึงข้อมูล
         console.log("Freelance data:", data); // ตรวจสอบข้อมูลที่ได้รับจาก API
 
         if (data && data.length > 0) {
-
           const freelanceInfo = data[0];
           setAbout_freelance(freelanceInfo.about_freelance || "");
           setEmail(freelanceInfo.email || "");
           setUsername(freelanceInfo.username || "");
           setPicture(freelanceInfo.picture || null);
-
         }
       } catch (error) {
         Alert.alert("Error", "ไม่สามารถดึงข้อมูลได้");
@@ -54,69 +55,99 @@ const AccountInfo = ({ navigation, route }) => {
     fetchFreelance();
   }, []);
 
-   const pickNewImage = async () => {
-      // No permissions request is necessary for launching the image library
-      let result = await ImagePicker.launchImageLibraryAsync({
-        mediaTypes: ["images", "videos"],
-        allowsEditing: true,
-        aspect: [4, 3],
-        quality: 1,
-      });
-  
-      console.log(result);
+  const pickNewImage = async () => {
+    // No permissions request is necessary for launching the image library
+    let result = await ImagePicker.launchImageLibraryAsync({
+      mediaTypes: ["images", "videos"],
+      allowsEditing: true,
+      aspect: [4, 3],
+      quality: 1,
+    });
 
-  
-      if (!result.canceled) {
-        setPicture(result.assets[0].uri);
+    console.log(result);
+
+    if (!result.canceled) {
+      setPicture(result.assets[0].uri);
+    }
+  };
+
+  const handleUpdate = async () => {
+    try {
+      // ตรวจสอบว่า user มีข้อมูลครบถ้วนหรือไม่
+      if (!picture || !username || !email || !about_freelance) {
+        Alert.alert("ข้อผิดพลาด", "กรุณากรอกข้อมูลทั้งหมด");
+        navigation.navigate("Profile"); // ถ้าไม่มีข้อมูลครบถ้วน ไปที่หน้า Profile
+        return;
       }
-    };
+      console.log(
+        about_freelance,
+        username,
+        picture,
+        email,
+        id_freelance,
+        id_user
+      );
 
-
-    const handleUpdate = async () => {
-      try {
-        if (!about_freelance || !username || !email || !picture) {
-          Alert.alert("เกิดข้อผิดพลาด", "กรุณากรอกข้อมูลให้ครบถ้วน");
-          return;
-        }
-  
-        // เรียกใช้ updateAccount จาก api.js
-        const response = await updateAccount(id_freelance, about_freelance, id_user, email, username, picture);
-  
-        if (response.success) {
-          Alert.alert("สำเร็จ", response.message);
-        } else {
-          Alert.alert("ข้อผิดพลาด", response.message);
-        }
-      } catch (error) {
-        Alert.alert("ข้อผิดพลาด", "ไม่สามารถอัปเดตข้อมูลได้");
+      // ตรวจสอบว่า email เป็นรูปแบบที่ถูกต้องหรือไม่
+      const emailRegex = /^[a-zA-Z0-9._-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,6}$/;
+      if (!emailRegex.test(email)) {
+        Alert.alert("ข้อผิดพลาด", "กรุณากรอกอีเมลในรูปแบบที่ถูกต้อง");
+        return;
       }
-    };
 
+      // เรียกใช้ updateAccount จาก api.js
+      const response = await updateAccount(
+        id_freelance,
+        about_freelance,
+        id_user,
+        email,
+        username,
+        picture
+      );
+
+      // ตรวจสอบการตอบกลับจาก API
+      if (response.success) {
+        // ถ้าการอัปเดตสำเร็จ แสดงข้อความสำเร็จ
+
+        const userId = id_user;
+        navigation.navigate("Profile", { userId });
+      } else {
+        // ถ้าการอัปเดตไม่สำเร็จ แสดงข้อความข้อผิดพลาด
+        Alert.alert("ข้อผิดพลาด", response.message);
+      }
+    } catch (error) {
+      // ถ้ามีข้อผิดพลาดในการเชื่อมต่อหรือส่งข้อมูล
+      Alert.alert("ข้อผิดพลาด", "ไม่สามารถอัปเดตข้อมูลได้");
+      console.error("Error updating account:", error); // แสดงข้อผิดพลาดใน console เพื่อการดีบัก
+    }
+  };
 
   return (
     <View style={styles.container}>
-      <Text style={styles.Textheader}>รายละเอียดบัญชี</Text>
-      <View style={styles.headcontaienr}>
-        {/* <Ionicons name="person" size={50} color="black" /> */}
-        <Image
-          source={{
-            uri:
-              user.picture ||
-              "https://www.weact.org/wp-content/uploads/2016/10/Blank-profile.png",
-          }}
-          style={styles.profileImage}
-        />
-        <Text style={styles.title}>{user.username}</Text>
+      <View style={styles.headerView}>
+        <TouchableOpacity onPress={() => { navigation.goBack()}}><Ionicons
+          name="arrow-back-circle-sharp"
+          size={40}
+          color="white"
+          style={{position:"relative" , left:20 , bottom:1}}
+        /></TouchableOpacity>
+        <Text style={styles.Textheader}>รายละเอียดบัญชี</Text>
       </View>
+
+     
       <View style={styles.optioncontainer}>
         <View style={styles.Viewcontainer}>
           <View style={{ alignSelf: "center" }}>
-             <Image
-                        source={
-                          picture ? { uri: picture } : { uri : "https://www.weact.org/wp-content/uploads/2016/10/Blank-profile.png"}
-                        }
-                        style={styles.profileImage2}
-                      />
+            <Image
+              source={
+                picture
+                  ? { uri: picture }
+                  : {
+                      uri: "https://www.weact.org/wp-content/uploads/2016/10/Blank-profile.png",
+                    }
+              }
+              style={styles.profileImage2}
+            />
             <TouchableOpacity onPress={pickNewImage}>
               <Text
                 style={{
@@ -133,9 +164,7 @@ const AccountInfo = ({ navigation, route }) => {
 
           <Text style={[styles.font]}>ชื่อผู้ใช้ (username)</Text>
           <InputBox
-
             placeholder={username || "ไม่พบข้อมูล"}
-
             borderColor="#D5D5D5"
             width={320}
             height={40}
@@ -144,9 +173,7 @@ const AccountInfo = ({ navigation, route }) => {
 
           <Text style={[styles.font]}>อีเมล (email)</Text>
           <InputBox
-
             placeholder={email || "ไม่พบข้อมูล"}
-
             borderColor="#D5D5D5"
             width={320}
             height={40}
@@ -155,9 +182,7 @@ const AccountInfo = ({ navigation, route }) => {
 
           <Text style={[styles.font]}>คำอธิบายฟรีแลนซ์</Text>
           <InputBox
-
             placeholder={about_freelance || "ไม่พบข้อมูล"}
-
             borderColor="#D5D5D5"
             width={320}
             height={"auto"}
@@ -173,9 +198,7 @@ const AccountInfo = ({ navigation, route }) => {
           width={290}
           marginTop={20}
           marginBottom={80}
-
           onPress={handleUpdate}
-
         />
       </View>
     </View>
@@ -227,10 +250,11 @@ const styles = StyleSheet.create({
     elevation: 8,
   },
   title: {
-    fontSize: 24,
+    fontSize: 26,
     fontWeight: "bold",
     color: "black",
     marginTop: 15,
+    marginLeft: 15,
   },
   font: {
     marginLeft: 10,
@@ -260,8 +284,13 @@ const styles = StyleSheet.create({
     fontSize: 24,
     fontWeight: "bold",
     color: "white",
-    textAlign: "center",
-    marginTop: 40,
+    marginLeft: 30,
+  },
+  headerView: {
+    marginTop: 70,
+    flexDirection: "row",
+    marginBottom:20,
+
   },
 });
 export default AccountInfo;

@@ -191,33 +191,32 @@ export const getFreelance = async (id_freelance) => {
 
 export const updateAccount = async (id_freelance, about_freelance, id_user, email, username, picture) => {
   try {
-    const formData = new FormData();
-    formData.append("file", {
-      uri: picture,
-      type: "image/png", // หรือประเภท MIME ของไฟล์
-      name: "profile_picture.png", // ชื่อไฟล์
-    });
+    // ถ้า picture เป็นไฟล์ รูปภาพที่เลือกจาก ImagePicker
+    const base64Picture = picture; // หรือคุณสามารถแปลงรูปภาพเป็น base64 ได้หากต้องการ
 
-    // ส่งข้อมูลที่ไม่เกี่ยวข้องกับรูปภาพ
-    formData.append("id_freelance", id_freelance);
-    formData.append("about_freelance", about_freelance);
-    formData.append("id_user", id_user);
-    formData.append("email", email);
-    formData.append("username", username);
+    // สร้างข้อมูลในรูปแบบ JSON
+    const data = {
+      id_freelance,
+      about_freelance,
+      id_user,
+      email,
+      username,
+      picture: base64Picture,  //แปลงภาพเป็น Base64 แล้ว
+    };
 
-    const response = await fetch("YOUR_API_URL/updateAccount", {
+    const response = await fetch(`${API_URL}/updateAccount`, {
       method: "POST",
-      body: formData,
       headers: {
-        "Content-Type": "multipart/form-data",
+        "Content-Type": "application/json",  // ส่งเป็น JSON
       },
+      body: JSON.stringify(data),  // ส่งข้อมูลในรูปแบบ JSON
     });
 
-    const data = await response.json();
-    if (data.success) {
+    const result = await response.json();
+    if (result.success) {
       return { success: true, message: "อัปเดตข้อมูลสำเร็จ" };
     } else {
-      return { success: false, message: data.message || "ไม่สามารถอัปเดตข้อมูลได้" };
+      return { success: false, message: result.message || "ไม่สามารถอัปเดตข้อมูลได้" };
     }
   } catch (error) {
     console.error("Error updating account:", error);

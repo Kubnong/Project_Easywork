@@ -4,6 +4,7 @@ const bcrypt = require("bcryptjs");
 const jwt = require("jsonwebtoken");
 const path = require("path");
 const multer = require("multer");
+const bodyParser = require('body-parser');
 
 const app = express();
 
@@ -13,6 +14,7 @@ const cors = require("cors");
 app.use(express.json());
 app.use(cors());  //ใช้ cors 
 
+const upload = multer();
 
 
 const db = new sqlite3.Database("./userDB.db", (err) => {
@@ -412,12 +414,11 @@ app.get("/getFreelance", (req, res) => {
 
 
 // อัพเดทรายละเอียดบัญชี
-
 app.post('/updateAccount', (req, res) => {
   const { id_freelance, about_freelance, id_user, email, username, picture } = req.body;
-  
+
   // ตรวจสอบข้อมูลที่ได้รับ
-  if (!id_freelance || !about_freelance || !id_user || !email || !username) {
+  if (!id_freelance || !about_freelance || !id_user || !email || !username || !picture) {
     return res.status(400).send({ message: "กรุณากรอกข้อมูลให้ครบถ้วน" });
   }
 
