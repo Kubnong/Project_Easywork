@@ -7,11 +7,23 @@ const API_URL = "http://192.168.0.16:5000";
 
 export const categories = async () => {
   try {
-    const response = await axios.get(`${API_URL}/categories`); // เรียก API
-    return response.data; // ส่งข้อมูลกลับไป
+      const response = await fetch(`${API_URL}/categories`);
+      const data = await response.json();
+      return data; // ส่งข้อมูล categories กลับ
   } catch (error) {
-    console.error("Error fetching categories:", error);
-    throw error; // ส่ง error ไปให้ frontend จัดการ
+      console.error("Error fetching categories:", error);
+      throw error;
+  }
+};
+
+export const getTypeWork = async () => {
+  try {
+      const response = await fetch(`${API_URL}/typework`);
+      const data = await response.json();
+      return data; // ส่งข้อมูล typework กลับ
+  } catch (error) {
+      console.error("Error fetching typework:", error);
+      throw error;
   }
 };
 
@@ -183,6 +195,32 @@ export const getFreelance = async (id_freelance) => {
 };
 
 
+export const addEmployment = async (storedUserId,id_freelance,id_work) => {
+  try {
+    console.log("Data sent to API:", {storedUserId,id_freelance,id_work});
+    const response = await axios.post(`${API_URL}/addEmployment`, {
+      storedUserId,
+      id_freelance,
+      id_work,
+    });
+    return response.data;
+  } catch (error) {
+    console.error("Error fetching Add Employment:", error);
+    return [];
+  }
+};
+
+export const getEmployment = async (storedUserId) => {
+  try {
+    const response = await axios.post(`${API_URL}/getEmployment`, {storedUserId});
+    return response.data;
+  } catch (error) {
+    console.error("Error fetching Add Employment:", error);
+    return [];
+  }
+};
+
+
 
 
 // อัพเดทรายละเอียดบัญชี
@@ -223,3 +261,4 @@ export const updateAccount = async (id_freelance, about_freelance, id_user, emai
     return { success: false, message: "ไม่สามารถเชื่อมต่อกับเซิร์ฟเวอร์" };
   }
 };
+

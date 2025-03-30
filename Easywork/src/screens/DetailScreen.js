@@ -2,16 +2,33 @@ import React , {useState} from "react";
 import {View , Text , Image , StyleSheet, ScrollView} from "react-native";
 import CustomButton from "../components/CustomButton";
 import Ionicons from '@expo/vector-icons/Ionicons';
+import AsyncStorage from "@react-native-async-storage/async-storage";
 import CustomModal from "../components/CustomModal";
+import { addEmployment } from "../services/api";
 
 const DetailScreen = ({route,navigation}) => {
-    const {image, title, price, description} = route.params;
+    const {id_work, id_freelance, image, title, price, description, about_freelance, username, user_picture} = route.params;
     const [modalVisible, setModalVisible] = useState(false);
     
     const handleClose = () => {
         setModalVisible(false);
     };
-    
+    const handleEmployment = async () => {
+        try {
+            const storedUserId = await AsyncStorage.getItem("userId");
+            console.log(id_freelance,storedUserId,id_work)
+            await addEmployment(storedUserId,id_freelance,id_work)
+        } catch (error) {
+            Alert.alert("Error", "Something went wrong!");
+            console.error("Error in employment process:", error);
+        }
+    };
+
+    const handlePress = () => {
+        setModalVisible(true); // เปิด Modal
+        handleEmployment(); // เรียกฟังก์ชัน handleEmployment
+    };
+
     return(
         <ScrollView contentContainerStyle={styles.scrollContainer}>
             <View style={styles.container}>
@@ -37,13 +54,14 @@ const DetailScreen = ({route,navigation}) => {
                 </View>
                 <View>
                     <View style={styles.freelanceProfile}> 
-                        <Ionicons name="person-circle" size={90} color="grey" />
+                        <Image
+                            style={styles.user_picture}
+                            source={{uri:user_picture}}
+                        />
                         <View>
-                            <Text style={styles.title}>Stamplnwza</Text>
+                            <Text style={styles.title}>{username}</Text>
                             <Text style={{fontSize:12,marginLeft:5}}>
-                                พัฒนาและออกแบบ wesite php,node.js,Mysql และ {"\n"}
-                                framework อื่น ๆออกแบบเชื่อมต่อ API {"\n"}
-                                ทั้งในไทยและต่างประเทศ {"\n"}
+                                {about_freelance}
                             </Text>
                         </View>
                     </View>
@@ -53,7 +71,7 @@ const DetailScreen = ({route,navigation}) => {
                         color={"white"}
                         width={370}
                         height={60}
-                        onPress={() => setModalVisible(true)}
+                        onPress={handlePress}
                     />
                     <CustomModal
                         visible={modalVisible}
@@ -72,7 +90,6 @@ const DetailScreen = ({route,navigation}) => {
 const styles = StyleSheet.create({
     container:{
         flex:1,
-        backgroundColor:'white',
         justifyContent:'space-between',
     },
     scrollContainer: {
@@ -82,6 +99,11 @@ const styles = StyleSheet.create({
     image:{
         width:'auto',
         height:200,
+    },
+    user_picture:{
+        width:80,
+        height:80,
+        borderRadius:75
     },
     textContainer:{
         padding:10,
