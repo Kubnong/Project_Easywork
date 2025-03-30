@@ -36,6 +36,9 @@ const WorkScreen = (navigation) => {
                             title={item.name_work} // ส่งชื่องาน
                             price={item.price} // ส่งราคา
                             description={item.description}
+                            about_freelance={item.about_freelance}
+                            username={item.username}
+                            user_picture={item.picture}
                         />
                     )}
                 />

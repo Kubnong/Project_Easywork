@@ -245,13 +245,25 @@ db.run(`DELETE FROM Category`, function (err) {
     });
   });
 */
-app.get('/categories', (req, res) => {
-  db.all(`SELECT name_category FROM Category`, (err, rows) => {
+app.get("/categories", (req, res) => {
+  const sql = `SELECT id_category A, name_category AS name FROM Category`;
+  db.all(sql, [], (err, rows) => {
+    if (err) {
+      console.error("Error fetching categories:", err);
+      return res.status(500).json({ error: "Database error" });
+    }
+    res.json(rows); // ส่งข้อมูล categories กลับไปยังฝั่งไคลเอนต์
+  });
+});
+
+app.get("/typework", (req, res) => {
+  const sql = `SELECT id_typework, id_category, name_typework FROM TypeWork`;
+  db.all(sql, [], (err, rows) => {
       if (err) {
-          res.status(500).json({ error: err.message });
-          return;
+          console.error("Error fetching typework:", err);
+          return res.status(500).json({ error: "Database error" });
       }
-      res.json(rows);
+      res.json(rows); // ส่งข้อมูล typework กลับไปยังฝั่งไคลเอนต์
   });
 });
 
@@ -369,7 +381,11 @@ app.post("/savefreelance", (req, res) => {
 
 app.get("/getworks", (req, res) => {
   db.all(
-      `SELECT id_work, name_work, price, Portfolio, description FROM Work`,
+      `SELECT Freelance.about_freelance, Users.username, Users.picture, Work.id_work, Work.name_work, Work.price, Work.Portfolio, Work.description
+      FROM Work
+      JOIN Freelance ON Work.id_freelance = Freelance.id_freelance
+      JOIN Verify ON Freelance.id_verify = Verify.id_verify
+      JOIN Users ON Verify.id_user = Users.id_user;`,
       [],
       (err, rows) => {
           if (err) {

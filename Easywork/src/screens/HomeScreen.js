@@ -1,39 +1,43 @@
-import React from "react";
+import React, {useState,useEffect} from "react";
 import {View, StyleSheet, TextInput, Text, FlatList, TouchableOpacity, Image  } from "react-native";
 import Feather from "@expo/vector-icons/Feather";
 import FunctionBar from "../components/FunctionBar.js";
+import { categories } from "../services/api.js";
+import { getTypeWork } from "../services/api.js";
 
-const categories = [
-    { id: '1', name: 'แนะนำ'},
-    { id: '2', name: 'ออกแบบกราฟิก'},
-    { id: '3', name: 'เว็บไซต์และเทคโนโลยี'},
-    { id: '4', name: 'สถาปัตย์และวิศวกรรม'},
-    { id: '5', name: 'เขียนและแปลภาษา'},
-];
-const worktype = [
-    { id: '1', name: 'ทำ SEO', category:'เว็บไซต์และเทคโนโลยี' , pic:'https://img.freepik.com/free-photo/searching-engine-optimizing-seo-browsing-concept_53876-64993.jpg?ga=GA1.1.1495959679.1741193136&semt=ais_hybridO'},
-    { id: '2', name: 'Logo', category:'ออกแบบกราฟิก', pic:'https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcQFVPcHGroySXhQpz_2eB-C9pmYwLtDQ4e6lQ&s'}, 
-    { id: '3', name: 'Web Development', category:'เว็บไซต์และเทคโนโลยี', pic:'https://miro.medium.com/v2/resize:fit:1400/1*hn1UA__pO2b0k520Ac1ApQ.jpeg'},
-    { id: '4', name: 'เขียนและออกแบบโครงสร้าง', category:'สถาปัตย์และวิศวกรรม', pic:'https://as2.ftcdn.net/jpg/00/81/89/57/1000_F_81895775_3lTXjWKjZtw4kx0kGpOrF33UmpQ6q50j.jpg'},
-    { id: '5', name: 'แปลภาษา', category:'เขียนและแปลภาษา', pic:'https://play-lh.googleusercontent.com/C1y3UJXvJ36YgI1DiFbOm92YPJRQBgFjAeaBb5HNR5OCk_6rOHKnCOiUBCdDmCT1WpH-'},
-]
 const HomeScreen = ({navigation}) => {
+    const [categoriesData, setCategories] = useState([]); // เก็บข้อมูล categories
+    const [typeworkData, setTypeWork] = useState([]); // เก็บข้อมูล typework
     
+    useEffect(() => {
+        const fetchData = async () => {
+            try {
+                const dataCategories = await categories(); // ดึงข้อมูล categories
+                const dataTypework = await getTypeWork(); // ดึงข้อมูล typework
+                setCategories(dataCategories); // เก็บ categories ใน state
+                setTypeWork(dataTypework); // เก็บ typework ใน state
+            } catch (error) {
+                console.error("Error fetching data:", error);
+            } finally {
+                setLoading(false); // ปิดสถานะการโหลด
+            }
+        };
+
+        fetchData();
+    }, []);
+
     return(
         <View style={styles.container}>
             <View style={{backgroundColor : "#7adf9f"}}>
-            <Text style={styles.title}>ค้นหาฟรีแลนซ์ที่คุณสนใจ</Text>
-            <View style={styles.searchContainer}>
-                <Feather name="search" size={26} color="#7E7E7E" style={styles.icon}/>
-                <TextInput
-                    style = {styles.font}
-                    placeholder="Search"
-                    placeholderTextColor="#7E7E7E"
-                />
-            </View>
-            </View>
-            <View>
-                
+                <Text style={styles.title}>ค้นหาฟรีแลนซ์ที่คุณสนใจ</Text>
+                <View style={styles.searchContainer}>
+                    <Feather name="search" size={26} color="#7E7E7E" style={styles.icon}/>
+                    <TextInput
+                        style = {styles.font}
+                        placeholder="Search"
+                        placeholderTextColor="#7E7E7E"
+                    />
+                </View>
             </View>
             <Text style={[styles.font , {fontSize : 16 , marginLeft : 20 , fontWeight : "bold" , color: "#1c3d2f"}]}>หมวดหมู่ทั้งหมด</Text>
             <TouchableOpacity 
@@ -50,10 +54,10 @@ const HomeScreen = ({navigation}) => {
             </TouchableOpacity>
             <View>
                 <FlatList
-                    data={categories}
+                    data={categoriesData}
                     horizontal={true}
                     showsHorizontalScrollIndicator={false}
-                    keyExtractor={(item) => item.id}
+                    keyExtractor={(item, index) => `${item.id}-${index}`}
                     renderItem={({item}) => (
                         <TouchableOpacity style={styles.categoryItem}>
                             <Text style={{fontWeight : "bold" , color : "#1a3c30" }}>{item.name}</Text>
@@ -63,8 +67,8 @@ const HomeScreen = ({navigation}) => {
             </View>
             <View style={{padding:10 , marginTop :10 , marginBottom : 70 , flex : 1}}>
                 <FlatList
-                    data={worktype}
-                    keyExtractor={(item) => item.id}
+                    data={typeworkData}
+                    keyExtractor={(item, index) => `${item.id}-${index}`}
                     numColumns={2}
                     columnWrapperStyle={{justifyContent: 'space-between'}}
                     renderItem={({item}) => (
@@ -73,16 +77,13 @@ const HomeScreen = ({navigation}) => {
                                 style={styles.tinyLogo}
                                 source={{ uri : item.pic}}
                             />
-                            <Text style={{padding : 5}}>{item.name}</Text>
+                            <Text style={{padding : 5}}>{item.name_typework}</Text>
                         </TouchableOpacity>
                     )}
                 />
-                
             </View>
-        
             <FunctionBar />
         </View>
-       
     )
 }
 const styles = StyleSheet.create({

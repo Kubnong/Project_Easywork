@@ -3,12 +3,12 @@ import {View, StyleSheet, Text, TouchableOpacity,Image} from "react-native";
 import { useNavigation } from "@react-navigation/native"
 
 // อยู่หน้าไหนให้สีของหน้านั้นเปลี่ยนสี
-const WorkCard = ({image,title,price,description}) => {
+const WorkCard = ({image,title,price,description,about_freelance,username,user_picture}) => {
     const navigation = useNavigation();
     return(
         <TouchableOpacity 
             style={styles.card}
-            onPress={ () => navigation.navigate("DetailScreen",{image,title,price,description}) }
+            onPress={ () => navigation.navigate("DetailScreen",{image,title,price,description,about_freelance,username,user_picture}) }
         >
             <Image
                 style={styles.image}

@@ -5,7 +5,7 @@ import Ionicons from '@expo/vector-icons/Ionicons';
 import CustomModal from "../components/CustomModal";
 
 const DetailScreen = ({route,navigation}) => {
-    const {image, title, price, description} = route.params;
+    const {image, title, price, description, about_freelance, username, user_picture} = route.params;
     const [modalVisible, setModalVisible] = useState(false);
     
     const handleClose = () => {
@@ -37,13 +37,14 @@ const DetailScreen = ({route,navigation}) => {
                 </View>
                 <View>
                     <View style={styles.freelanceProfile}> 
-                        <Ionicons name="person-circle" size={90} color="grey" />
+                        <Image
+                            style={styles.user_picture}
+                            source={{uri:user_picture}}
+                        />
                         <View>
-                            <Text style={styles.title}>Stamplnwza</Text>
+                            <Text style={styles.title}>{username}</Text>
                             <Text style={{fontSize:12,marginLeft:5}}>
-                                พัฒนาและออกแบบ wesite php,node.js,Mysql และ {"\n"}
-                                framework อื่น ๆออกแบบเชื่อมต่อ API {"\n"}
-                                ทั้งในไทยและต่างประเทศ {"\n"}
+                                {about_freelance}
                             </Text>
                         </View>
                     </View>
@@ -72,7 +73,6 @@ const DetailScreen = ({route,navigation}) => {
 const styles = StyleSheet.create({
     container:{
         flex:1,
-        backgroundColor:'white',
         justifyContent:'space-between',
     },
     scrollContainer: {
@@ -82,6 +82,11 @@ const styles = StyleSheet.create({
     image:{
         width:'auto',
         height:200,
+    },
+    user_picture:{
+        width:80,
+        height:80,
+        borderRadius:75
     },
     textContainer:{
         padding:10,
