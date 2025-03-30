@@ -194,51 +194,24 @@ export const updateAccount = async (id_freelance, about_freelance, id_user, emai
     const formData = new FormData();
     formData.append("file", {
       uri: picture,
-      type: "image/png", // หรือประเภท MIME ของไฟล์ของคุณ
-      name: "profile_picture.png", // ชื่อไฟล์ (หรือใช้ชื่อที่เหมาะสม)
+      type: "image/png", // หรือประเภท MIME ของไฟล์
+      name: "profile_picture.png", // ชื่อไฟล์
     });
 
-    // ส่งข้อมูลที่ไม่เกี่ยวข้องกับรูปภาพ (เช่น ข้อมูลทั่วไป)
+    // ส่งข้อมูลที่ไม่เกี่ยวข้องกับรูปภาพ
     formData.append("id_freelance", id_freelance);
     formData.append("about_freelance", about_freelance);
     formData.append("id_user", id_user);
     formData.append("email", email);
     formData.append("username", username);
 
-    const response = await fetch("YOUR_API_URL", {
+    const response = await fetch("YOUR_API_URL/updateAccount", {
       method: "POST",
       body: formData,
       headers: {
         "Content-Type": "multipart/form-data",
       },
     });
-
-
-
-
-// อัพเดทรายละเอียดบัญชี
-
-export const updateAccount = async (id_freelance, about_freelance, id_user, email, username, picture) => {
-  try {
-    const response = await fetch(`${API_URL}/updateAccount`, {
-      method: "PUT",
-      headers: {
-        "Content-Type": "application/json",
-      },
-      body: JSON.stringify({
-        id_freelance,
-        about_freelance,
-        id_user,
-        email,
-        username,
-        picture,
-      }),
-    });
-
-    if (!response.ok) {
-      throw new Error(`HTTP error! Status: ${response.status}`);
-    }
-
 
     const data = await response.json();
     if (data.success) {
@@ -248,8 +221,6 @@ export const updateAccount = async (id_freelance, about_freelance, id_user, emai
     }
   } catch (error) {
     console.error("Error updating account:", error);
-
     return { success: false, message: "ไม่สามารถเชื่อมต่อกับเซิร์ฟเวอร์" };
-
   }
 };
