@@ -1,5 +1,7 @@
 import axios from "axios";
 
+import { Alert } from "react-native";
+
 const API_URL = "http://192.168.0.16:5000";
 
 
@@ -182,6 +184,38 @@ export const getFreelance = async (id_freelance) => {
 
 
 
+
+// อัพเดทรายละเอียดบัญชี
+// api.js
+
+
+export const updateAccount = async (id_freelance, about_freelance, id_user, email, username, picture) => {
+  try {
+    const formData = new FormData();
+    formData.append("file", {
+      uri: picture,
+      type: "image/png", // หรือประเภท MIME ของไฟล์ของคุณ
+      name: "profile_picture.png", // ชื่อไฟล์ (หรือใช้ชื่อที่เหมาะสม)
+    });
+
+    // ส่งข้อมูลที่ไม่เกี่ยวข้องกับรูปภาพ (เช่น ข้อมูลทั่วไป)
+    formData.append("id_freelance", id_freelance);
+    formData.append("about_freelance", about_freelance);
+    formData.append("id_user", id_user);
+    formData.append("email", email);
+    formData.append("username", username);
+
+    const response = await fetch("YOUR_API_URL", {
+      method: "POST",
+      body: formData,
+      headers: {
+        "Content-Type": "multipart/form-data",
+      },
+    });
+
+
+
+
 // อัพเดทรายละเอียดบัญชี
 
 export const updateAccount = async (id_freelance, about_freelance, id_user, email, username, picture) => {
@@ -205,10 +239,17 @@ export const updateAccount = async (id_freelance, about_freelance, id_user, emai
       throw new Error(`HTTP error! Status: ${response.status}`);
     }
 
+
     const data = await response.json();
-    return data;
+    if (data.success) {
+      return { success: true, message: "อัปเดตข้อมูลสำเร็จ" };
+    } else {
+      return { success: false, message: data.message || "ไม่สามารถอัปเดตข้อมูลได้" };
+    }
   } catch (error) {
     console.error("Error updating account:", error);
-    throw error;
+
+    return { success: false, message: "ไม่สามารถเชื่อมต่อกับเซิร์ฟเวอร์" };
+
   }
 };

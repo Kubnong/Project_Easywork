@@ -391,7 +391,9 @@ app.get("/getFreelance", (req, res) => {
   }
 
   const query = `
-    SELECT Freelance.about_freelance, Users.username , Verify.id_verify , Users.picture
+
+    SELECT Freelance.about_freelance, Users.username , Verify.id_verify , Users.picture , Users.email
+
     FROM Freelance
     JOIN Verify ON Freelance.id_verify = Verify.id_verify
     JOIN Users ON Verify.id_user = Users.id_user
@@ -411,32 +413,38 @@ app.get("/getFreelance", (req, res) => {
 
 // อัพเดทรายละเอียดบัญชี
 
-app.put("/updateAccount", (req, res) => {
+app.post('/updateAccount', (req, res) => {
   const { id_freelance, about_freelance, id_user, email, username, picture } = req.body;
-
-  if (!id_freelance || !about_freelance || !id_user || !email || !username || !picture) {
-    return res.status(400).json({ error: "Missing required fields" });
+  
+  // ตรวจสอบข้อมูลที่ได้รับ
+  if (!id_freelance || !about_freelance || !id_user || !email || !username) {
+    return res.status(400).send({ message: "กรุณากรอกข้อมูลให้ครบถ้วน" });
   }
 
-  const sql1 = `UPDATE Freelance SET about_freelance = ? WHERE id_freelance = ?`;
-  const sql2 = `UPDATE Users SET username = ?, email = ?, picture = ? WHERE id_user = ?`;
-
-  db.serialize(() => {
-    db.run(sql1, [about_freelance, id_freelance], function (err) {
+  // อัปเดตข้อมูลในฐานข้อมูล
+  db.run(
+    `UPDATE Freelance SET about_freelance = ? WHERE id_freelance = ?`,
+    [about_freelance, id_freelance],
+    function (err) {
       if (err) {
-        console.error("Error updating Freelance:", err);
-        return res.status(500).json({ error: "Database error in Freelance" });
+        console.error("Error updating freelance:", err);
+        return res.status(500).send({ message: "Error updating freelance", error: err });
       }
-    });
 
-    db.run(sql2, [username, email, picture, id_user], function (err) {
-      if (err) {
-        console.error("Error updating Users:", err);
-        return res.status(500).json({ error: "Database error in Users" });
-      }
-      res.json({ message: "Update successful", changes: this.changes });
-    });
-  });
+      // อัปเดตข้อมูลผู้ใช้
+      db.run(
+        `UPDATE Users SET email = ?, username = ?, picture = ? WHERE id_user = ?`,
+        [email, username, picture, id_user],
+        function (err) {
+          if (err) {
+            console.error("Error updating user:", err);
+            return res.status(500).send({ message: "Error updating user", error: err });
+          }
+          res.send({ success: true, message: "Account updated successfully" });
+        }
+      );
+    }
+  );
 });
 
 
