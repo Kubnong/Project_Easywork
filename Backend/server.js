@@ -383,16 +383,67 @@ app.get("/getworks", (req, res) => {
 
 // เรียกรับค่า Freelance
 // สร้าง API ดึงข้อมูลผู้ใช้
-app.get("/api/getFreelance", (req, res) => { 
-  
-  db.all(`SELECT * FROM Freelance`, [userId] , (err, results) => { 
+app.get("/getFreelance", (req, res) => {
+  const { id_freelance } = req.query; // ใช้ req.query แทน req.body สำหรับ GET request
+
+  if (!id_freelance) {
+    return res.status(400).send({ message: "Missing id_freelance parameter" });
+  }
+
+  const query = `
+    SELECT Freelance.about_freelance, Users.username , Verify.id_verify , Users.picture , Users.email
+    FROM Freelance
+    JOIN Verify ON Freelance.id_verify = Verify.id_verify
+    JOIN Users ON Verify.id_user = Users.id_user
+    WHERE Freelance.id_freelance = ?
+  `;
+
+  db.all(query, [id_freelance], (err, rows) => {
     if (err) {
-      console.error("Error fetching Freelance:", err);
-      res.status(500).json({ error: "Database error" });
-    } else {
-      res.json(results);
+      console.error("Error fetching freelance:", err);
+      return res.status(500).send({ message: "Error fetching freelance", error: err });
     }
+    res.json(rows); // ส่งข้อมูลกลับไปยังฝั่งไคลเอนต์
   });
 });
+
+
+
+// อัพเดทรายละเอียดบัญชี
+
+app.post('/updateAccount', (req, res) => {
+  const { id_freelance, about_freelance, id_user, email, username, picture } = req.body;
+  
+  // ตรวจสอบข้อมูลที่ได้รับ
+  if (!id_freelance || !about_freelance || !id_user || !email || !username) {
+    return res.status(400).send({ message: "กรุณากรอกข้อมูลให้ครบถ้วน" });
+  }
+
+  // อัปเดตข้อมูลในฐานข้อมูล
+  db.run(
+    `UPDATE Freelance SET about_freelance = ? WHERE id_freelance = ?`,
+    [about_freelance, id_freelance],
+    function (err) {
+      if (err) {
+        console.error("Error updating freelance:", err);
+        return res.status(500).send({ message: "Error updating freelance", error: err });
+      }
+
+      // อัปเดตข้อมูลผู้ใช้
+      db.run(
+        `UPDATE Users SET email = ?, username = ?, picture = ? WHERE id_user = ?`,
+        [email, username, picture, id_user],
+        function (err) {
+          if (err) {
+            console.error("Error updating user:", err);
+            return res.status(500).send({ message: "Error updating user", error: err });
+          }
+          res.send({ success: true, message: "Account updated successfully" });
+        }
+      );
+    }
+  );
+});
+
 
 app.listen(5000, () => console.log("Server running on port 5000"));
