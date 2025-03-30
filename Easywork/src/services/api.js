@@ -1,6 +1,8 @@
 import axios from "axios";
 
-const API_URL = "http://192.168.0.67:5000";
+import { Alert } from "react-native";
+
+const API_URL = "http://192.168.0.16:5000";
 
 
 export const categories = async () => {
@@ -168,18 +170,30 @@ export const saveFreelance = async (idVerify, aboutFreelance) => {
       throw error;
   }
 };
-
-// รับ freelance 
-export const getFreelance = async (userId) => {
+export const getFreelance = async (id_freelance) => {
   try {
-    const response = await fetch(`${API_URL}/getFreelance=${userId}`);
-    const data = await response.json();
-    return data;
+    const response = await fetch(`${API_URL}/getFreelance?id_freelance=${id_freelance}`);
+    
+    if (!response.ok) {
+      throw new Error(`HTTP error! Status: ${response.status}`);
+    }
+
+    const text = await response.text();
+    console.log("Response text:", text);  // แสดงข้อความที่ได้รับจาก API
+    try {
+      const data = JSON.parse(text);
+      console.log("Parsed data:", data);  // ตรวจสอบว่า data ถูกต้องหรือไม่
+      return data; // ส่งข้อมูล Freelance กลับ
+    } catch (e) {
+      console.error("Response is not JSON:", text); // ถ้าไม่สามารถแปลงเป็น JSON ได้
+      throw new Error("Response is not JSON");
+    }
   } catch (error) {
-    console.error("Error fetching users:", error);
-    return [];
+    console.error("Error fetching freelance data:", error);
+    throw error;
   }
 };
+
 
 export const addEmployment = async (storedUserId,id_freelance,id_work) => {
   try {
@@ -205,3 +219,46 @@ export const getEmployment = async (storedUserId) => {
     return [];
   }
 };
+
+
+
+
+// อัพเดทรายละเอียดบัญชี
+// api.js
+
+
+export const updateAccount = async (id_freelance, about_freelance, id_user, email, username, picture) => {
+  try {
+    // ถ้า picture เป็นไฟล์ รูปภาพที่เลือกจาก ImagePicker
+    const base64Picture = picture; // หรือคุณสามารถแปลงรูปภาพเป็น base64 ได้หากต้องการ
+
+    // สร้างข้อมูลในรูปแบบ JSON
+    const data = {
+      id_freelance,
+      about_freelance,
+      id_user,
+      email,
+      username,
+      picture: base64Picture,  //แปลงภาพเป็น Base64 แล้ว
+    };
+
+    const response = await fetch(`${API_URL}/updateAccount`, {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",  // ส่งเป็น JSON
+      },
+      body: JSON.stringify(data),  // ส่งข้อมูลในรูปแบบ JSON
+    });
+
+    const result = await response.json();
+    if (result.success) {
+      return { success: true, message: "อัปเดตข้อมูลสำเร็จ" };
+    } else {
+      return { success: false, message: result.message || "ไม่สามารถอัปเดตข้อมูลได้" };
+    }
+  } catch (error) {
+    console.error("Error updating account:", error);
+    return { success: false, message: "ไม่สามารถเชื่อมต่อกับเซิร์ฟเวอร์" };
+  }
+};
+

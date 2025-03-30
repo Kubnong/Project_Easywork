@@ -13,7 +13,7 @@ import InputBox from "../components/InputBox";
 import { loginUser } from "../services/api";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 
-const Login = ({ navigation, setUserToken, setUserId }) => {
+const Login = ({ navigation , setUserToken, setUserId }) => {
   const [identifier, setIdentifier] = useState("");
   const [password, setPassword] = useState("");
 
@@ -41,10 +41,7 @@ const Login = ({ navigation, setUserToken, setUserId }) => {
       setUserId(response.userId); // ตั้งค่า userId ใน state
 
       Alert.alert("Login Successful", `Token: ${response.token}`);
-      navigation.reset({
-        index: 0,
-        routes: [{ name: "HomeScreen" }],
-      });
+      navigation.navigate("HomeScreen")
     } catch (error) {
       Alert.alert("Login Failed", error.message);
     }
